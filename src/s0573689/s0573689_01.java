@@ -15,6 +15,7 @@ public class s0573689_01 extends AI {
     private boolean tempRising = false;
     private int riseMeter = 0;
     private Point[] pearls;
+    private Path2D[] obstacles;
     private int counter=0;
 
 
@@ -25,6 +26,8 @@ public class s0573689_01 extends AI {
 
         // Register where the pearls are and store them in an Array.
         pearls = pearlSort();
+
+        obstacles = info.getScene().getObstacles();
     }
 
     @Override
@@ -42,13 +45,14 @@ public class s0573689_01 extends AI {
 
         // steering
         float direction=0;
+        float fleeWeight=0.05f;
 
         if (tempRising) {
             direction = rising();
         } else {
 
             // Register where the obstacles are and store them in an Array.
-            Path2D[] obstacles = info.getScene().getObstacles();
+
             /*
                 TODO: register obstacles
             *   Idea: Go for the pearls, if there's an obstacle in the way, change direction vector to
@@ -59,26 +63,32 @@ public class s0573689_01 extends AI {
             *
             *   Alt: Avoid obstacle until d.x == p.x and d.y > p.y
             */
-            if (obstacles[0].contains(info.getX(), info.getY()-5)) {    // Obstacle Collision detection
-                direction += (float) -Math.PI/2;
-            }
+
 
             /*
              *  The next part is a calculation of the angle between the downwards vector and
              *  the vector from the diver to the goal.
              */
-            direction = goToPearl(pearls);
+
+            direction =  goToPearl(pearls);
+
+            // direction += fleeWeight* fleeFromObstacle(obstacles);
         }
 
         return new DivingAction(info.getMaxAcceleration(), direction);
     }
 
     private float rising() {
-        if (riseMeter >= 50) {
+
+        // TODO: flee from here on?
+
+        // TODO: maybe use point between two pearls as flee point?
+
+        if (riseMeter>=100 /*info.getY()>=pearls[counter].getY()+100*/) {
             tempRising = false;
         }
         riseMeter++;
-        return (float) Math.PI / 2;
+        return (float) fleeFromObstacle(obstacles);
     }
 
 
@@ -96,11 +106,13 @@ public class s0573689_01 extends AI {
         // Calculates the vector from the current position of the diver to the goal.
         Point currentPosToGoal = new Point((int) (pearls[counter].getX() - info.getX()), (int) (pearls[counter].getY() - info.getY()));
 
-        // Calculates the absolute value of the vector between the current Position and the Goal.
+        /*// Calculates the absolute value of the vector between the current Position and the Goal.
         float goalABS = (float) (Math.sqrt((Math.pow(currentPosToGoal.getX(), 2) + Math.pow(currentPosToGoal.getY(), 2))));
 
         // Actual calculation of the angle.
         direction = (float) ((Math.PI * 2) - (Math.acos(currentPosToGoal.getX() / goalABS)));
+*/
+        direction = (float)Math.atan2(currentPosToGoal.getY(), currentPosToGoal.getX());
 
         // direction: goal.Y / abs(vector(goal))#
         //System.out.println(counter+" || "+pearls[1].getX()+" "+pearls[counter].getY()+" | "+goalABS+" "+direction);
@@ -136,4 +148,21 @@ public class s0573689_01 extends AI {
         pearls = pearlsTemp;
         return pearls;
     }
+
+    private float fleeFromObstacle(Path2D[] obstacles){
+        float direction;
+        // Calculates the vector from the current position of the diver to the goal.
+        Point currentPosToGoal = new Point((int) (info.getX() - obstacles[0].getCurrentPoint().getX()), (int) (info.getY() - obstacles[0].getCurrentPoint().getY()));
+
+        /*// Calculates the absolute value of the vector between the current Position and the Goal.
+        float goalABS = (float) (Math.sqrt((Math.pow(currentPosToGoal.getX(), 2) + Math.pow(currentPosToGoal.getY(), 2))));
+
+        // Actual calculation of the angle.
+        direction = (float) ((Math.PI * 2) - (Math.acos(currentPosToGoal.getX() / goalABS)));*/
+
+        direction = (float)Math.atan2(currentPosToGoal.getY(), currentPosToGoal.getX());
+
+        return direction;
+    }
+
 }
