@@ -13,8 +13,7 @@ import java.util.List;
 public class s0573689_01 extends AI {
 
     private boolean tempRising = false;
-    private boolean right = false;
-    private boolean left = false;
+    private float risingDirection;
 
     private int riseMeter = 0;
     private Point[] pearls;
@@ -51,7 +50,7 @@ public class s0573689_01 extends AI {
         float fleeWeight=0.05f;
 
         if (tempRising) {
-            direction = rising();
+            direction = rising(risingDirection);
         } else {
 
             // Register where the obstacles are and store them in an Array.
@@ -72,18 +71,24 @@ public class s0573689_01 extends AI {
              *  The next part is a calculation of the angle between the downwards vector and
              *  the vector from the diver to the goal.
              */
-            if(obstacles[1].contains(info.getX(),info.getY()-1) || obstacles[0].contains(info.getX(),info.getY()-1)) {
+            if(obstacles[0].contains(info.getX(),info.getY()-1.5) || obstacles[1].contains(info.getX(),info.getY()-1.5)) {
                 tempRising = true;
+                risingDirection = (float)Math.PI/2;
                 riseMeter = 0;
             }
             if(obstacles[0].contains(info.getX()+1,info.getY())|| obstacles[1].contains(info.getX()+1,info.getY())) {
                 tempRising = true;
-                right = true;
+                risingDirection = (float)Math.PI;
                 riseMeter = 0;
             }
             if(obstacles[0].contains(info.getX()-1,info.getY())|| obstacles[1].contains(info.getX()-1,info.getY())) {
                 tempRising = true;
-                left = true;
+                risingDirection = (float)0;
+                riseMeter = 0;
+            }
+            if(obstacles[0].contains(info.getX(),info.getY()+2)|| obstacles[1].contains(info.getX(),info.getY()+2)) {
+                tempRising = true;
+                risingDirection += (float)-Math.PI/2;
                 riseMeter = 0;
             }
 
@@ -95,9 +100,7 @@ public class s0573689_01 extends AI {
         return new DivingAction(info.getMaxAcceleration(), direction);
     }
 
-    private float rising() {
-
-        float direction = (float) Math.PI/2;
+    private float rising(float direction) {
 
         // TODO: flee from here on?
 
@@ -107,11 +110,8 @@ public class s0573689_01 extends AI {
 
         if (riseMeter>=20 /*info.getY()>=pearls[counter].getY()+100*/) {
             tempRising = false;
-            right = false;
-            left = false;
+            risingDirection = 0;
         }
-        direction = right ? (float)Math.PI : (float) Math.PI/2;
-        direction = left ? 0 : (float) Math.PI/2;
         riseMeter++;
         return direction;
     }
@@ -149,6 +149,7 @@ public class s0573689_01 extends AI {
                 && pearls[counter].getY() >= info.getY() - 6 && pearls[counter].getY() <= info.getY() + 6*/) {
             counter = info.getScore();
             direction = (float) Math.PI /2;
+            risingDirection = (float) Math.PI /2;
             tempRising = true;
             riseMeter = 0;
 
