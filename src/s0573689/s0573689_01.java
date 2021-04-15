@@ -13,6 +13,9 @@ import java.util.List;
 public class s0573689_01 extends AI {
 
     private boolean tempRising = false;
+    private boolean right = false;
+    private boolean left = false;
+
     private int riseMeter = 0;
     private Point[] pearls;
     private Path2D[] obstacles;
@@ -22,7 +25,7 @@ public class s0573689_01 extends AI {
     public s0573689_01(Info info) {
         super(info);
         // one (only one) AI should enlist in the tournament at the end of the exercise
-        // enlistForTournament(573689);
+        enlistForTournament(573689);
 
         // Register where the pearls are and store them in an Array.
         pearls = pearlSort();
@@ -69,6 +72,20 @@ public class s0573689_01 extends AI {
              *  The next part is a calculation of the angle between the downwards vector and
              *  the vector from the diver to the goal.
              */
+            if(obstacles[1].contains(info.getX(),info.getY()-1) || obstacles[0].contains(info.getX(),info.getY()-1)) {
+                tempRising = true;
+                riseMeter = 0;
+            }
+            if(obstacles[0].contains(info.getX()+1,info.getY())) {
+                tempRising = true;
+                right = true;
+                riseMeter = 0;
+            }
+            if(obstacles[0].contains(info.getX()-1,info.getY())) {
+                tempRising = true;
+                left = true;
+                riseMeter = 0;
+            }
 
             direction =  goToPearl(pearls);
 
@@ -80,15 +97,23 @@ public class s0573689_01 extends AI {
 
     private float rising() {
 
+        float direction = (float) Math.PI/2;
+
         // TODO: flee from here on?
 
         // TODO: maybe use point between two pearls as flee point?
 
-        if (riseMeter>=100 /*info.getY()>=pearls[counter].getY()+100*/) {
+        // TODO: FLEE - SEEK
+
+        if (riseMeter>=20 /*info.getY()>=pearls[counter].getY()+100*/) {
             tempRising = false;
+            right = false;
+            left = false;
         }
+        direction = right ? (float)Math.PI : (float) Math.PI/2;
+        direction = left ? 0 : (float) Math.PI/2;
         riseMeter++;
-        return (float) fleeFromObstacle(obstacles);
+        return direction;
     }
 
 
@@ -152,7 +177,7 @@ public class s0573689_01 extends AI {
     private float fleeFromObstacle(Path2D[] obstacles){
         float direction;
         // Calculates the vector from the current position of the diver to the goal.
-        Point currentPosToGoal = new Point((int) (info.getX() - obstacles[0].getCurrentPoint().getX()), (int) (info.getY() - obstacles[0].getCurrentPoint().getY()));
+        Point currentPosToGoal = new Point((int) (info.getX() - obstacles[1].getCurrentPoint().getX()), (int) (info.getY() - obstacles[1].getCurrentPoint().getY()));
 
         /*// Calculates the absolute value of the vector between the current Position and the Goal.
         float goalABS = (float) (Math.sqrt((Math.pow(currentPosToGoal.getX(), 2) + Math.pow(currentPosToGoal.getY(), 2))));
