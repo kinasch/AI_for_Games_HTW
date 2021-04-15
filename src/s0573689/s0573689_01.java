@@ -77,13 +77,13 @@ public class s0573689_01 extends AI {
                 risingDirection = (float)Math.PI/2;
                 riseMeter = 0;
             }
-            if(obstacles[0].contains(info.getX()+1,info.getY())|| obstacles[1].contains(info.getX()+1,info.getY())) {
+            if(obstacles[0].contains(info.getX()+2,info.getY())|| obstacles[1].contains(info.getX()+1,info.getY())) {
                 tempRising = true;
                 risingDirection = (float)Math.PI;
                 sideways = true;
                 riseMeter = 0;
             }
-            if(obstacles[0].contains(info.getX()-1,info.getY())|| obstacles[1].contains(info.getX()-1,info.getY())) {
+            if(obstacles[0].contains(info.getX()-2,info.getY())|| obstacles[1].contains(info.getX()-1,info.getY())) {
                 tempRising = true;
                 risingDirection = (float)0;
                 sideways = true;
@@ -91,9 +91,10 @@ public class s0573689_01 extends AI {
             }
             if(obstacles[0].contains(info.getX(),info.getY()+2)|| obstacles[1].contains(info.getX(),info.getY()+2)) {
                 tempRising = true;
+                sideways = true;
                 Random rdm = new Random();
                 int rdmInt =  rdm.nextInt(100);
-                risingDirection = rdmInt % 2 == 0 ? (float)(-Math.PI/2)+0.3f :(float)(-Math.PI/2)-0.3f;
+                risingDirection = rdmInt % 2 == 0 ? (float)(-Math.PI) :(float)0;
                 riseMeter = 0;
             }
 
