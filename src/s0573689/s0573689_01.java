@@ -13,6 +13,7 @@ import java.util.List;
 public class s0573689_01 extends AI {
 
     private boolean tempRising = false;
+    private boolean sideways = false;
     private float risingDirection;
 
     private int riseMeter = 0;
@@ -71,7 +72,7 @@ public class s0573689_01 extends AI {
              *  The next part is a calculation of the angle between the downwards vector and
              *  the vector from the diver to the goal.
              */
-            if(obstacles[0].contains(info.getX(),info.getY()-1.5) || obstacles[1].contains(info.getX(),info.getY()-1.5)) {
+            if(obstacles[0].contains(info.getX(),info.getY()-2) || obstacles[1].contains(info.getX(),info.getY()-2)) {
                 tempRising = true;
                 risingDirection = (float)Math.PI/2;
                 riseMeter = 0;
@@ -79,16 +80,20 @@ public class s0573689_01 extends AI {
             if(obstacles[0].contains(info.getX()+1,info.getY())|| obstacles[1].contains(info.getX()+1,info.getY())) {
                 tempRising = true;
                 risingDirection = (float)Math.PI;
+                sideways = true;
                 riseMeter = 0;
             }
             if(obstacles[0].contains(info.getX()-1,info.getY())|| obstacles[1].contains(info.getX()-1,info.getY())) {
                 tempRising = true;
                 risingDirection = (float)0;
+                sideways = true;
                 riseMeter = 0;
             }
             if(obstacles[0].contains(info.getX(),info.getY()+2)|| obstacles[1].contains(info.getX(),info.getY()+2)) {
                 tempRising = true;
-                risingDirection += (float)-Math.PI/2;
+                Random rdm = new Random();
+                int rdmInt =  rdm.nextInt(100);
+                risingDirection = rdmInt % 2 == 0 ? (float)(-Math.PI/2)+0.3f :(float)(-Math.PI/2)-0.3f;
                 riseMeter = 0;
             }
 
@@ -108,7 +113,14 @@ public class s0573689_01 extends AI {
 
         // TODO: FLEE - SEEK
 
-        if (riseMeter>=20 /*info.getY()>=pearls[counter].getY()+100*/) {
+        if (riseMeter>=20 && !sideways) {
+            tempRising = false;
+            risingDirection = 0;
+        }
+        if (riseMeter>=20 && sideways){
+            risingDirection = (float)Math.PI/2;
+        }
+        if (riseMeter>=20 && sideways){
             tempRising = false;
             risingDirection = 0;
         }
