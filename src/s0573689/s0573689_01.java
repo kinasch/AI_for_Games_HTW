@@ -76,12 +76,12 @@ public class s0573689_01 extends AI {
                 tempRising = true;
                 riseMeter = 0;
             }
-            if(obstacles[0].contains(info.getX()+1,info.getY())) {
+            if(obstacles[0].contains(info.getX()+1,info.getY())|| obstacles[1].contains(info.getX()+1,info.getY())) {
                 tempRising = true;
                 right = true;
                 riseMeter = 0;
             }
-            if(obstacles[0].contains(info.getX()-1,info.getY())) {
+            if(obstacles[0].contains(info.getX()-1,info.getY())|| obstacles[1].contains(info.getX()-1,info.getY())) {
                 tempRising = true;
                 left = true;
                 riseMeter = 0;
