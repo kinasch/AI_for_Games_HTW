@@ -7,13 +7,17 @@ import lenz.htw.ai4g.ai.PlayerAction;
 
 import java.awt.*;
 import java.awt.geom.Path2D;
+
+import java.util.Arrays;
+import java.util.HashMap;
+
 import java.util.*;
 import java.util.List;
 
-public class s0573689_01 extends AI {
+public class s0573689_01_2 extends AI {
 
     private boolean tempRising = false;
-    private boolean sideways = false;
+    private boolean obsRight,obsLeft,obsUp,obsDown;
     private float risingDirection;
 
     private int riseMeter = 0;
@@ -22,11 +26,10 @@ public class s0573689_01 extends AI {
     private int counter=0;
 
 
-    public s0573689_01(Info info) {
+    public s0573689_01_2(Info info) {
         super(info);
         // one (only one) AI should enlist in the tournament at the end of the exercise
-
-
+        enlistForTournament(573689);
         // Register where the pearls are and store them in an Array.
         pearls = pearlSort();
 
@@ -35,12 +38,12 @@ public class s0573689_01 extends AI {
 
     @Override
     public String getName() {
-        return "Jasch";
+        return "Jasch2";
     }
 
     @Override
     public Color getColor() {
-        return Color.MAGENTA;
+        return Color.BLUE;
     }
 
     @Override
@@ -72,29 +75,35 @@ public class s0573689_01 extends AI {
              *  the vector from the diver to the goal.
              */
             for (Path2D obstacle : obstacles) {
+                // Down
                 if (obstacle.contains(info.getX(), info.getY() - 2)) {
                     tempRising = true;
                     risingDirection = (float) Math.PI / 2;
+                    obsDown = true;
                     riseMeter = 0;
                 }
+                // Right
                 if (obstacle.contains(info.getX() + 2, info.getY())) {
                     tempRising = true;
                     risingDirection = (float) Math.PI;
-                    sideways = true;
+                    obsRight = true;
                     riseMeter = 0;
                 }
+                // Left
                 if (obstacle.contains(info.getX() - 2, info.getY())) {
                     tempRising = true;
                     risingDirection = (float) 0;
-                    sideways = true;
+                    obsLeft = true;
                     riseMeter = 0;
                 }
-                if (obstacle.contains(info.getX(), info.getY() + 2)) {
+                // Up
+                if (obstacle.contains(info.getX(), info.getY() + 3)) {
                     tempRising = true;
                     Random rdm = new Random();
                     //int rdmInt = rdm.nextInt(100);
                     // risingDirection = rdmInt % 2 == 0 ? (float) (-Math.PI) : (float) 0;
-                    risingDirection = (float)(-Math.PI);
+                    risingDirection = (float)(-Math.PI/2);
+                    obsUp = true;
                     riseMeter = 0;
                 }
             }
@@ -115,17 +124,33 @@ public class s0573689_01 extends AI {
 
         // TODO: FLEE - SEEK
 
-        if (riseMeter>=20 && !sideways) {
-            risingDirection = 0;
+        if (riseMeter>=10 && obsLeft) {
+            tempRising = false; //
         }
-        if (riseMeter>=15 && sideways){
+        if (riseMeter>=10 && obsRight) {
+            risingDirection = (float) Math.PI / 2; //
+            obsRight = false;
+        }
+        if (riseMeter>=10 && obsUp) {
+            risingDirection = (float)Math.PI*3/4;
+            obsUp = false;
+        }
+        if (riseMeter>=15 && obsDown) {
+            risingDirection = 0; //
+
+        }
+        /*if (riseMeter>=15 && sideways){
             risingDirection = (float)Math.PI/2;
         }
         if (riseMeter>=20 && sideways){
             risingDirection = 0;
-        }
+        }*/
 
-        if(riseMeter > 32){
+        if(riseMeter > 20 && !obsDown){
+            tempRising = false;
+        }
+        if(riseMeter > 35 && obsDown){
+            obsDown = false;
             tempRising = false;
         }
         riseMeter++;
@@ -166,6 +191,7 @@ public class s0573689_01 extends AI {
             counter = info.getScore();
             direction = (float) Math.PI /2;
             risingDirection = (float) Math.PI /2;
+            obsDown = true;
             tempRising = true;
             riseMeter = 0;
 
