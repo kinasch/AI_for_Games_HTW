@@ -48,7 +48,6 @@ public class s0573689_01 extends AI {
 
         // steering
         float direction=0;
-        float fleeWeight=0.05f;
 
         if (tempRising) {
             direction = rising(risingDirection);
@@ -72,30 +71,31 @@ public class s0573689_01 extends AI {
              *  The next part is a calculation of the angle between the downwards vector and
              *  the vector from the diver to the goal.
              */
-            if(obstacles[0].contains(info.getX(),info.getY()-2) || obstacles[1].contains(info.getX(),info.getY()-2)) {
-                tempRising = true;
-                risingDirection = (float)Math.PI/2;
-                riseMeter = 0;
-            }
-            if(obstacles[0].contains(info.getX()+2,info.getY())|| obstacles[1].contains(info.getX()+1,info.getY())) {
-                tempRising = true;
-                risingDirection = (float)Math.PI;
-                sideways = true;
-                riseMeter = 0;
-            }
-            if(obstacles[0].contains(info.getX()-2,info.getY())|| obstacles[1].contains(info.getX()-1,info.getY())) {
-                tempRising = true;
-                risingDirection = (float)0;
-                sideways = true;
-                riseMeter = 0;
-            }
-            if(obstacles[0].contains(info.getX(),info.getY()+2)|| obstacles[1].contains(info.getX(),info.getY()+2)) {
-                tempRising = true;
-                sideways = true;
-                Random rdm = new Random();
-                int rdmInt =  rdm.nextInt(100);
-                risingDirection = rdmInt % 2 == 0 ? (float)(-Math.PI) :(float)0;
-                riseMeter = 0;
+            for (Path2D obstacle : obstacles) {
+                if (obstacle.contains(info.getX(), info.getY() - 2)) {
+                    tempRising = true;
+                    risingDirection = (float) Math.PI / 2;
+                    riseMeter = 0;
+                }
+                if (obstacle.contains(info.getX() + 2, info.getY())) {
+                    tempRising = true;
+                    risingDirection = (float) Math.PI;
+                    sideways = true;
+                    riseMeter = 0;
+                }
+                if (obstacle.contains(info.getX() - 2, info.getY())) {
+                    tempRising = true;
+                    risingDirection = (float) 0;
+                    sideways = true;
+                    riseMeter = 0;
+                }
+                if (obstacle.contains(info.getX(), info.getY() + 2)) {
+                    tempRising = true;
+                    Random rdm = new Random();
+                    int rdmInt = rdm.nextInt(100);
+                    risingDirection = rdmInt % 2 == 0 ? (float) (-Math.PI) : (float) 0;
+                    riseMeter = 0;
+                }
             }
 
             direction =  goToPearl(pearls);
@@ -115,15 +115,17 @@ public class s0573689_01 extends AI {
         // TODO: FLEE - SEEK
 
         if (riseMeter>=20 && !sideways) {
-            tempRising = false;
             risingDirection = 0;
         }
-        if (riseMeter>=20 && sideways){
+        if (riseMeter>=15 && sideways){
             risingDirection = (float)Math.PI/2;
         }
-        if (riseMeter>=20 && sideways){
-            tempRising = false;
+        if (riseMeter>=25 && sideways){
             risingDirection = 0;
+        }
+
+        if(riseMeter > 32){
+            tempRising = false;
         }
         riseMeter++;
         return direction;
@@ -186,22 +188,6 @@ public class s0573689_01 extends AI {
         }
         pearls = pearlsTemp;
         return pearls;
-    }
-
-    private float fleeFromObstacle(Path2D[] obstacles){
-        float direction;
-        // Calculates the vector from the current position of the diver to the goal.
-        Point currentPosToGoal = new Point((int) (info.getX() - obstacles[1].getCurrentPoint().getX()), (int) (info.getY() - obstacles[1].getCurrentPoint().getY()));
-
-        /*// Calculates the absolute value of the vector between the current Position and the Goal.
-        float goalABS = (float) (Math.sqrt((Math.pow(currentPosToGoal.getX(), 2) + Math.pow(currentPosToGoal.getY(), 2))));
-
-        // Actual calculation of the angle.
-        direction = (float) ((Math.PI * 2) - (Math.acos(currentPosToGoal.getX() / goalABS)));*/
-
-        direction = (float)Math.atan2(currentPosToGoal.getY(), currentPosToGoal.getX());
-
-        return direction;
     }
 
 }
