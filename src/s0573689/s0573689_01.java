@@ -25,7 +25,7 @@ public class s0573689_01 extends AI {
     public s0573689_01(Info info) {
         super(info);
         // one (only one) AI should enlist in the tournament at the end of the exercise
-
+        enlistForTournament(573689);
 
         // Register where the pearls are and store them in an Array.
         pearls = pearlSort();
