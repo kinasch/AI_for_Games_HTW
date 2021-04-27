@@ -7,25 +7,23 @@ import lenz.htw.ai4g.ai.PlayerAction;
 
 import java.awt.*;
 import java.awt.geom.Path2D;
+
+import java.util.Arrays;
+import java.util.HashMap;
+
 import java.util.*;
 import java.util.List;
 
-public class s0573689_01 extends AI {
+public class s0573689_02 extends AI {
 
-    private boolean tempRising = false;
-    private boolean sideways = false;
-    private float risingDirection;
-
-    private int riseMeter = 0;
     private Point[] pearls;
     private Path2D[] obstacles;
-    private int counter=0;
+    private int counter = 0;
 
 
-    public s0573689_01(Info info) {
+    public s0573689_02(Info info) {
         super(info);
         // one (only one) AI should enlist in the tournament at the end of the exercise
-        enlistForTournament(573689);
 
         // Register where the pearls are and store them in an Array.
         pearls = pearlSort();
@@ -35,25 +33,21 @@ public class s0573689_01 extends AI {
 
     @Override
     public String getName() {
-        return "Jasch";
+        return "Jasch2";
     }
 
     @Override
     public Color getColor() {
-        return Color.MAGENTA;
+        return Color.BLACK;
     }
 
     @Override
     public PlayerAction update() {
 
         // steering
-        float direction=0;
+        float direction = 0;
 
-        if (tempRising) {
-            direction = rising(risingDirection);
-        } else {
-
-            // Register where the obstacles are and store them in an Array.
+        // Register where the obstacles are and store them in an Array.
 
             /*
                 TODO: register obstacles
@@ -67,78 +61,25 @@ public class s0573689_01 extends AI {
             */
 
 
-            /*
-             *  The next part is a calculation of the angle between the downwards vector and
-             *  the vector from the diver to the goal.
-             */
-            for (Path2D obstacle : obstacles) {
-                if (obstacle.contains(info.getX(), info.getY() - 2)) {
-                    tempRising = true;
-                    risingDirection = (float) Math.PI / 2;
-                    riseMeter = 0;
-                }
-                if (obstacle.contains(info.getX() + 2, info.getY())) {
-                    tempRising = true;
-                    risingDirection = (float) Math.PI;
-                    sideways = true;
-                    riseMeter = 0;
-                }
-                if (obstacle.contains(info.getX() - 2, info.getY())) {
-                    tempRising = true;
-                    risingDirection = (float) 0;
-                    sideways = true;
-                    riseMeter = 0;
-                }
-                if (obstacle.contains(info.getX(), info.getY() + 2)) {
-                    tempRising = true;
-                    Random rdm = new Random();
-                    //int rdmInt = rdm.nextInt(100);
-                    // risingDirection = rdmInt % 2 == 0 ? (float) (-Math.PI) : (float) 0;
-                    risingDirection = (float)(-Math.PI);
-                    riseMeter = 0;
-                }
-            }
-
-            direction =  goToPearl(pearls);
-
-            // direction += fleeWeight* fleeFromObstacle(obstacles);
+        double tempX = Math.cos(info.getOrientation())+info.getX();
+        /*
+         *  The next part is a calculation of the angle between the downwards vector and
+         *  the vector from the diver to the goal.
+         */
+        for (Path2D obstacle : obstacles) {
+            // TODO
         }
+
+        direction = goToPearl(pearls);
 
         return new DivingAction(info.getMaxAcceleration(), direction);
     }
-
-    private float rising(float direction) {
-
-        // TODO: flee from here on?
-
-        // TODO: maybe use point between two pearls as flee point?
-
-        // TODO: FLEE - SEEK
-
-        if (riseMeter>=20 && !sideways) {
-            risingDirection = 0;
-        }
-        if (riseMeter>=15 && sideways){
-            risingDirection = (float)Math.PI/2;
-        }
-        if (riseMeter>=20 && sideways){
-            risingDirection = 0;
-        }
-
-        if(riseMeter > 32){
-            tempRising = false;
-        }
-        riseMeter++;
-        return direction;
-    }
-
 
     /**
      * This method calculates the angle at which the diver has to swim for the (theoretically)
      * shortest way from his position to a pearl.
      *
-     * @param pearls:  array of Points which stores the location of the pearls in the scene.
-     *
+     * @param pearls: array of Points which stores the location of the pearls in the scene.
      * @return float direction: angle at which the diver moves relational to the x-axis.
      */
     public float goToPearl(Point[] pearls) {
@@ -153,7 +94,7 @@ public class s0573689_01 extends AI {
         // Actual calculation of the angle.
         direction = (float) ((Math.PI * 2) - (Math.acos(currentPosToGoal.getX() / goalABS)));
 */
-        direction = (float)Math.atan2(currentPosToGoal.getY(), currentPosToGoal.getX());
+        direction = (float) Math.atan2(currentPosToGoal.getY(), currentPosToGoal.getX());
 
         // direction: goal.Y / abs(vector(goal))#
         //System.out.println(counter+" || "+pearls[1].getX()+" "+pearls[counter].getY()+" | "+goalABS+" "+direction);
@@ -164,27 +105,22 @@ public class s0573689_01 extends AI {
                 /*pearls[counter].getX() >= info.getX() - 6 && pearls[counter].getX() <= info.getX() + 6
                 && pearls[counter].getY() >= info.getY() - 6 && pearls[counter].getY() <= info.getY() + 6*/) {
             counter = info.getScore();
-            direction = (float) Math.PI /2;
-            /*risingDirection = (float) Math.PI /2;
-            tempRising = true;
-            riseMeter = 0;*/
-
         }
         return direction;
     }
 
-    private Point[] pearlSort(){
+    private Point[] pearlSort() {
         Point[] pearls = info.getScene().getPearl();
         // Map(Key: x value of pearl, Value: index of pearl)
-        HashMap<Integer,Integer> pMap = new HashMap<>();
-        for(int i=0;i<pearls.length;i++){
-            pMap.put((int)pearls[i].getX(),i);
+        HashMap<Integer, Integer> pMap = new HashMap<>();
+        for (int i = 0; i < pearls.length; i++) {
+            pMap.put((int) pearls[i].getX(), i);
         }
         // List to sort the keys
         List<Integer> pearlCoords = new ArrayList<>(pMap.keySet());
         Collections.sort(pearlCoords);
         Point[] pearlsTemp = pearls.clone();
-        for(int i=0;i<pearls.length;i++){
+        for (int i = 0; i < pearls.length; i++) {
             pearlsTemp[i] = pearls[pMap.get(pearlCoords.get(i))];
         }
         pearls = pearlsTemp;
