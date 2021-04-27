@@ -55,7 +55,7 @@ public class Cringe_V1_3 extends AI {
         } else {
             richtung = goToPearl();
 
-            if (System.currentTimeMillis() % 4 == 0 && tempX == info.getX() && tempY == info.getY()) {
+            if (System.currentTimeMillis() % 10 == 0 && tempX == info.getX() && tempY == info.getY()) {
                 tempOrientation = info.getOrientation();
                 tempRising = true;
                 reisMeter = 0;

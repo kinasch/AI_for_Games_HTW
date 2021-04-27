@@ -15,6 +15,7 @@ public class Crigne_V1 extends AI {
 
     float richtung;
     int score, reisMeter, hoffentlichindex;
+    int ownScore = 0;
 
     boolean tempRising, tempUp, tempLeft, tempRight;
 
@@ -49,32 +50,38 @@ public class Crigne_V1 extends AI {
 
         if(tempRising){ richtung = riseAndShine();
         }else {
-            if (obstacles[1].contains(info.getX(), info.getY() - 3) || obstacles[0].contains(info.getX(), info.getY() - 3)) { // obstacle unten
+            for (Path2D obstacle : obstacles) {
+            if (obstacle.contains(info.getX(), info.getY() - 3) ) { // obstacle unten
                 tempRising = true;
                 reisMeter = 0;
             }
-            if (obstacles[1].contains(info.getX(), info.getY() + 3) || obstacles[0].contains(info.getX(), info.getY() + 3)) { // obstacle oben
+            if (obstacle.contains(info.getX(), info.getY() + 3) ) { // obstacle oben
                 tempRising = true;
                 tempUp = true;
                 reisMeter = 0;
             }
-            if (obstacles[1].contains(info.getX() - 3, info.getY()) || obstacles[0].contains(info.getX() - 3, info.getY())) { // obstacle links
+            if (obstacle.contains(info.getX() - 3, info.getY()) ) { // obstacle links
                 tempRising = true;
                 tempLeft = true;
                 reisMeter = 0;
             }
-            if (obstacles[1].contains(info.getX() + 3f, info.getY()) || obstacles[0].contains(info.getX() + 3, info.getY())) { // obstacle rechts
+            if (obstacle.contains(info.getX() + 3f, info.getY()) ) { // obstacle rechts
                 tempRising = true;
                 tempRight = true;
                 reisMeter = 0;
-            }
+            }}
             richtung = goToPearl();
         }
+
+        if (pearlsTemp[ownScore] == info.getX() && sortedPearlsY.get(ownScore) == info.getY()) {
+            ownScore = ownScore + 1;
+        }
+
         return new DivingAction(speed,richtung); // Bewegung = Geschwindigkeit ∙ normalisierte Richtung
     }
 
     public float goToPearl(){
-        Point newDirection = new Point(pearlsTemp[score] - info.getX() ,sortedPearlsY.get(score) - info.getY() );
+        Point newDirection = new Point(pearlsTemp[ownScore] - info.getX(), sortedPearlsY.get(ownScore) - info.getY());
 
         richtung = (float)Math.atan2(newDirection.getY(), newDirection.getX());
         return richtung;
