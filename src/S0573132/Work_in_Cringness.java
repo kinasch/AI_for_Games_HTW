@@ -11,7 +11,7 @@ import java.awt.geom.Path2D;
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class Version1 extends AI {
+public class Work_in_Cringness extends AI {
 
     float richtung;
     float tempOrientation;
@@ -27,7 +27,7 @@ public class Version1 extends AI {
     HashMap<Integer, Integer> sortedPearlsY = new HashMap<>();
     Point newDirection;
 
-    public Version1(Info info) {
+    public Work_in_Cringness(Info info) {
         super(info);
 //        enlistForTournament(573132, 573689);
         Arrays.sort(pearlsTemp);
@@ -36,12 +36,12 @@ public class Version1 extends AI {
 
     @Override
     public String getName() {
-        return "Cringe_V1.3";
+        return "Work in Cringness";
     }
 
     @Override
     public Color getColor() {
-        return Color.GREEN;
+        return Color.RED;
     }
 
     @Override
@@ -55,11 +55,34 @@ public class Version1 extends AI {
         } else {
             richtung = goToPearl();
 
-            if (System.currentTimeMillis() % 4 == 0 && tempX == info.getX() && tempY == info.getY()) {
+            if (System.currentTimeMillis() % 10 == 0 && tempX == info.getX() && tempY == info.getY()) {
                 tempOrientation = info.getOrientation();
                 tempRising = true;
                 reisMeter = 0;
             }
+
+//            for (Path2D obstacle : obstacles) {
+//                if (obstacle.contains(info.getX(), info.getY() - 3)) { // obstacle unten
+//                    tempOrientation = info.getOrientation();
+//                    tempRising = true;
+//                    reisMeter = 0;
+//                }
+//                if (obstacle.contains(info.getX(), info.getY() + 3)) { // obstacle oben
+//                    tempOrientation = info.getOrientation();
+//                    tempRising = true;
+//                    reisMeter = 0;
+//                }
+//                if (obstacle.contains(info.getX() - 3, info.getY())) { // obstacle links
+//                    tempOrientation = info.getOrientation();
+//                    tempRising = true;
+//                    reisMeter = 0;
+//                }
+//                if (obstacle.contains(info.getX() + 3f, info.getY())) { // obstacle rechts
+//                    tempOrientation = info.getOrientation();
+//                    tempRising = true;
+//                    reisMeter = 0;
+//                }
+//            }
         }
 
 
@@ -94,12 +117,12 @@ public class Version1 extends AI {
     public float riseAndShine() {
         float direction = info.getOrientation();
 
-        if (reisMeter >= 40) {
+        if (reisMeter >= 25) {
             tempRising = false;
         }
 
         if (tempRising) {
-            direction = tempOrientation + (float) Math.PI / 2 - reisMeter / 40f;
+            direction = tempOrientation + (float) Math.PI / 2 - reisMeter / 30f;
         }
         reisMeter++;
 

@@ -14,14 +14,14 @@ import java.util.HashMap;
 import java.util.*;
 import java.util.List;
 
-public class s0573689_02 extends AI {
+public class Jasch2 extends AI {
 
     private Point[] pearls;
     private Path2D[] obstacles;
     private int counter = 0;
 
 
-    public s0573689_02(Info info) {
+    public Jasch2(Info info) {
         super(info);
         // one (only one) AI should enlist in the tournament at the end of the exercise
 

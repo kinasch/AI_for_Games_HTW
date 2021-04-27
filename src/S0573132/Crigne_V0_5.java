@@ -1,4 +1,4 @@
-package s0573689;
+package S0573132;
 
 import lenz.htw.ai4g.ai.AI;
 import lenz.htw.ai4g.ai.DivingAction;
@@ -10,7 +10,7 @@ import java.awt.geom.Path2D;
 import java.util.*;
 import java.util.List;
 
-public class s0573689_01 extends AI {
+public class Crigne_V0_5 extends AI {
 
     private boolean tempRising = false;
     private boolean sideways = false;
@@ -22,7 +22,7 @@ public class s0573689_01 extends AI {
     private int counter=0;
 
 
-    public s0573689_01(Info info) {
+    public Crigne_V0_5(Info info) {
         super(info);
         // one (only one) AI should enlist in the tournament at the end of the exercise
 //        enlistForTournament(573689);
@@ -31,12 +31,11 @@ public class s0573689_01 extends AI {
         pearls = pearlSort();
 
         obstacles = info.getScene().getObstacles();
-        System.out.println("Schwanzus longus");
     }
 
     @Override
     public String getName() {
-        return "Jasch";
+        return "Crigne_V0.5";
     }
 
     @Override
@@ -150,7 +149,6 @@ public class s0573689_01 extends AI {
 
         /*// Calculates the absolute value of the vector between the current Position and the Goal.
         float goalABS = (float) (Math.sqrt((Math.pow(currentPosToGoal.getX(), 2) + Math.pow(currentPosToGoal.getY(), 2))));
-
         // Actual calculation of the angle.
         direction = (float) ((Math.PI * 2) - (Math.acos(currentPosToGoal.getX() / goalABS)));
 */
@@ -166,9 +164,9 @@ public class s0573689_01 extends AI {
                 && pearls[counter].getY() >= info.getY() - 6 && pearls[counter].getY() <= info.getY() + 6*/) {
             counter = info.getScore();
             direction = (float) Math.PI /2;
-            /*risingDirection = (float) Math.PI /2;
+            risingDirection = (float) Math.PI /2;
             tempRising = true;
-            riseMeter = 0;*/
+            riseMeter = 0;
 
         }
         return direction;

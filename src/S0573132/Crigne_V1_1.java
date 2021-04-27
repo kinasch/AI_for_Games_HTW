@@ -11,7 +11,7 @@ import java.awt.geom.Path2D;
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class Abgabe2KI_1 extends AI {
+public class Crigne_V1_1 extends AI {
 
     float richtung;
     int score, reisMeter, hoffentlichindex;
@@ -26,7 +26,7 @@ public class Abgabe2KI_1 extends AI {
     HashMap<Integer, Integer> sortedPearlsY = new HashMap<>();
     Point newDirection;
 
-    public Abgabe2KI_1(Info info){
+    public Crigne_V1_1(Info info){
         super(info);
 //        enlistForTournament(573132, 573689);
         Arrays.sort(pearlsTemp);
