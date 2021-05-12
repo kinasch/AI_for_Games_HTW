@@ -8,9 +8,10 @@ import lenz.htw.ai4g.ai.PlayerAction;
 import java.awt.*;
 
 import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Random;
 
 public class Work_in_Cringness extends AI {
 
@@ -26,11 +27,13 @@ public class Work_in_Cringness extends AI {
     HashMap<Integer, Integer> sortedPearlsX = new HashMap<>();
     HashMap<Integer, Integer> sortedPearlsY = new HashMap<>();
     Point newDirection;
+    ArrayList<Point2D> freespace = new ArrayList<>();
 
     public Work_in_Cringness(Info info){
         super(info);
         Arrays.sort(pearlsTemp);
         getSortedPearls();
+        testing();
     }
 
     @Override
@@ -48,6 +51,7 @@ public class Work_in_Cringness extends AI {
 
         float speed = info.getMaxAcceleration(); // max speed
         score = info.getScore();
+        Point[] fishies = info.getScene().getFish(); // Fische
 
         if(tempRising){ richtung = riseAndShine();
         }else {
@@ -78,17 +82,46 @@ public class Work_in_Cringness extends AI {
         if(pearlsTemp[ownScore] == info.getX() && sortedPearlsY.get(ownScore) == info.getY()){
             ownScore = ownScore+1;
         }
+
         return new DivingAction(speed,richtung); // Bewegung = Geschwindigkeit ∙ normalisierte Richtung
     }
 
     public float goToPearl(){
-
         newDirection = new Point(pearlsTemp[ownScore] - info.getX() ,sortedPearlsY.get(ownScore) - info.getY() );
         richtung = (float)Math.atan2(newDirection.getY(), newDirection.getX());
 
+        return richtung;
+    }
+
+    public float goToPearl2(){
+        newDirection = new Point(pearlsTemp[ownScore] - info.getX() ,sortedPearlsY.get(ownScore) - info.getY() );
+        richtung = (float)Math.atan2(newDirection.getY(), newDirection.getX());
 
         return richtung;
     }
+
+    public void testing(){
+        for(int y = 0; y < info.getScene().getHeight(); y+=10){
+            for(int x = 0; x < info.getScene().getWidth(); x+=10){
+                if (freiBier(x, -y)) {
+                   freespace.add(new Point(x+5, -y-5));
+                }
+                System.out.print(freiBier(x,-y) ? "." : "#");
+            }
+            System.out.println();
+        }
+    }
+    public boolean freiBier(int x, int y){
+        for (Path2D obstacle : obstacles) {
+            if (obstacle.intersects(x, y, 10,10)){
+                return false;
+            }
+        }
+        return true;
+    }
+//    public void Dietrying(){
+//
+//    }
 
     public void getSortedPearls(){
         for(int i = 0; i < pearl.length; i++){
@@ -124,5 +157,24 @@ public class Work_in_Cringness extends AI {
         reisMeter++;
         return direction;
     }
+}
 
+
+
+class Node{
+
+    ArrayList<Node> nodes = new ArrayList<>();
+    Point2D p;
+
+    public Node(Point2D p){
+        this.p = p;
+    }
+
+    public Point2D getPoint(){
+        return this.p;
+    }
+
+//    public Point2D setNeightbour(){
+//
+//    }
 }
