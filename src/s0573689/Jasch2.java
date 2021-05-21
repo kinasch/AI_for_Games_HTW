@@ -8,6 +8,7 @@ import lenz.htw.ai4g.ai.PlayerAction;
 import java.awt.*;
 import java.awt.geom.Path2D;
 
+import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -16,115 +17,263 @@ import java.util.List;
 
 public class Jasch2 extends AI {
 
-    private Point[] pearls;
-    private Path2D[] obstacles;
-    private int counter = 0;
+    float richtung;
+    int score;
+    int ownScore = 0;
 
+    boolean tempRising, tempUp, tempLeft, tempRight;
+
+    Point[] pearl = info.getScene().getPearl(); // ziele
+    int[] pearlsTemp = new int[]{pearl[0].x, pearl[1].x, pearl[2].x, pearl[3].x, pearl[4].x, pearl[5].x, pearl[6].x, pearl[7].x, pearl[8].x, pearl[9].x};
+    Path2D[] obstacles = info.getScene().getObstacles();
+    HashMap<Integer, Integer> sortedPearlsX = new HashMap<>();
+    HashMap<Integer, Integer> sortedPearlsY = new HashMap<>();
+    Point newDirection;
+    ArrayList<Point2D> freespace = new ArrayList<>();
+    Graph nodeGraph = new Graph();
 
     public Jasch2(Info info) {
         super(info);
-        // one (only one) AI should enlist in the tournament at the end of the exercise
-
-        // Register where the pearls are and store them in an Array.
-        pearls = pearlSort();
-
-        obstacles = info.getScene().getObstacles();
+        Arrays.sort(pearlsTemp);
+        getSortedPearls();
+        testing();
+        dijsktrastuff();
     }
 
     @Override
     public String getName() {
-        return "Jasch2";
+        return "JaschWIP";
     }
 
     @Override
     public Color getColor() {
-        return Color.BLACK;
+        return Color.RED;
     }
 
     @Override
     public PlayerAction update() {
 
-        // steering
-        float direction = 0;
+        float speed = info.getMaxAcceleration(); // max speed
+        score = info.getScore();
+        Point[] fishies = info.getScene().getFish(); // Fische
 
-        // Register where the obstacles are and store them in an Array.
+        if (pearlsTemp[ownScore] == info.getX() && sortedPearlsY.get(ownScore) == info.getY()) {
+            ownScore = ownScore + 1;
+        }
 
-            /*
-                TODO: register obstacles
-            *   Idea: Go for the pearls, if there's an obstacle in the way, change direction vector to
-            *   orthographic of vector from diver to nearest point of the obstacle.
-            *   Whether this direction vector has a positive or negative y component is up to the
-            *   direction it was headed to before.
-            *   If the diver is closer to a shell than to the obstacle, go for the shell.
+        return new DivingAction(speed, richtung); // Bewegung = Geschwindigkeit ∙ normalisierte Richtung
+    }
+
+    public float goToPearl() {
+        newDirection = new Point(pearlsTemp[ownScore] - info.getX(), sortedPearlsY.get(ownScore) - info.getY());
+        richtung = (float) Math.atan2(newDirection.getY(), newDirection.getX());
+
+        return richtung;
+    }
+
+    public void testing() {
+        for (int y = 0; y < info.getScene().getHeight(); y += 10) {
+            for (int x = 0; x < info.getScene().getWidth(); x += 10) {
+                if (freiBier(x, -y)) {
+                    freespace.add(new Point(x + 5, -y - 5));
+                }
+                //System.out.print(freiBier(x, -y) ? "." : "#");
+            }
+            //System.out.println();
+        }
+    }
+
+    public boolean freiBier(int x, int y) {
+        for (Path2D obstacle : obstacles) {
+            if (obstacle.intersects(x, y, 10, 10)) {
+                return false;
+            }
+        }
+        return true;
+    }
+//    public void Dietrying(){
+//
+//    }
+
+    public void getSortedPearls() {
+        for (int i = 0; i < pearl.length; i++) {
+            sortedPearlsX.put((int) pearl[i].getX(), i);
+        }
+        for (int i = 0; i < pearl.length; i++) {
+            sortedPearlsY.put(i, (int) pearl[sortedPearlsX.get(pearlsTemp[i])].getY());
+        }
+    }
+
+
+    public void dijsktrastuff() {
+        long time = System.currentTimeMillis();
+        for (Point2D point : freespace) {
+            Node n = new Node(point);
+            nodeGraph.addNode(n);
+        }
+
+        for (Node n : nodeGraph.getNodes()) {
+            for (Node neighbour : nodeGraph.getNodes()) {
+                if (isBetween(neighbour.getName().getX(), n.getName().getX() - 10, n.getName().getX() + 10)
+                        && isBetween(neighbour.getName().getY(), n.getName().getY() - 10, n.getName().getY() + 10)
+                        && n.getName() != neighbour.getName()) {
+                    int distance = neighbour.getName().getX() == n.getName().getX() || neighbour.getName().getY() == n.getName().getY() ? 10 : 14;
+                    n.adjacentNodes.put(neighbour, distance);
+                }
+            }
+        }
+
+        for (Node nTest : nodeGraph.getNodes()) {
+            nTest.adjacentNodes.keySet().forEach(node -> {
+                System.out.print(node.getName() + " | ");
+            });
+            System.out.print("\n");
+            System.out.println(nTest.adjacentNodes.values());
+
+            nodeGraph = Dijkstra.calculateShortestPathFromSource(nodeGraph, nTest); //source: Taucher
+
+            /* nodeGraph -> Ziel (Perle)
+            *  Ziel immer zum nächsten Vorgänger
+            *  immer in List speichern oder so
+            *  sobald Vorgänger source ablaufen
             *
-            *   Alt: Avoid obstacle until d.x == p.x and d.y > p.y
+            *  wiederholen
             */
 
-
-        double tempX = Math.cos(info.getOrientation())+info.getX();
-        /*
-         *  The next part is a calculation of the angle between the downwards vector and
-         *  the vector from the diver to the goal.
-         */
-        for (Path2D obstacle : obstacles) {
-            // TODO
+            break;
         }
 
-        direction = goToPearl(pearls);
+        // Position des Tauchers, Perle nähe Node, graph?
 
-        return new DivingAction(info.getMaxAcceleration(), direction);
+        System.err.println(System.currentTimeMillis() - time);
     }
 
-    /**
-     * This method calculates the angle at which the diver has to swim for the (theoretically)
-     * shortest way from his position to a pearl.
-     *
-     * @param pearls: array of Points which stores the location of the pearls in the scene.
-     * @return float direction: angle at which the diver moves relational to the x-axis.
-     */
-    public float goToPearl(Point[] pearls) {
-        float direction = 0;
-
-        // Calculates the vector from the current position of the diver to the goal.
-        Point currentPosToGoal = new Point((int) (pearls[counter].getX() - info.getX()), (int) (pearls[counter].getY() - info.getY()));
-
-        /*// Calculates the absolute value of the vector between the current Position and the Goal.
-        float goalABS = (float) (Math.sqrt((Math.pow(currentPosToGoal.getX(), 2) + Math.pow(currentPosToGoal.getY(), 2))));
-
-        // Actual calculation of the angle.
-        direction = (float) ((Math.PI * 2) - (Math.acos(currentPosToGoal.getX() / goalABS)));
-*/
-        direction = (float) Math.atan2(currentPosToGoal.getY(), currentPosToGoal.getX());
-
-        // direction: goal.Y / abs(vector(goal))#
-        //System.out.println(counter+" || "+pearls[1].getX()+" "+pearls[counter].getY()+" | "+goalABS+" "+direction);
-
-        // Idea: Mark the collected pearls as complete with null.
-        // TODO: Collection detection
-        if (counter < info.getScore()
-                /*pearls[counter].getX() >= info.getX() - 6 && pearls[counter].getX() <= info.getX() + 6
-                && pearls[counter].getY() >= info.getY() - 6 && pearls[counter].getY() <= info.getY() + 6*/) {
-            counter = info.getScore();
+    public boolean isBetween(double valueToBeChecked, double lowerBound, double upperBound) {
+        if (valueToBeChecked <= upperBound && valueToBeChecked >= lowerBound) {
+            return true;
         }
-        return direction;
+        return false;
     }
 
-    private Point[] pearlSort() {
-        Point[] pearls = info.getScene().getPearl();
-        // Map(Key: x value of pearl, Value: index of pearl)
-        HashMap<Integer, Integer> pMap = new HashMap<>();
-        for (int i = 0; i < pearls.length; i++) {
-            pMap.put((int) pearls[i].getX(), i);
-        }
-        // List to sort the keys
-        List<Integer> pearlCoords = new ArrayList<>(pMap.keySet());
-        Collections.sort(pearlCoords);
-        Point[] pearlsTemp = pearls.clone();
-        for (int i = 0; i < pearls.length; i++) {
-            pearlsTemp[i] = pearls[pMap.get(pearlCoords.get(i))];
-        }
-        pearls = pearlsTemp;
-        return pearls;
+
+}
+
+// Inspired by https://www.baeldung.com/java-dijkstra
+class Node {
+
+    private Point2D point;
+
+    private List<Node> shortestPath = new LinkedList<>();
+
+    private Integer distance = Integer.MAX_VALUE;
+
+    Map<Node, Integer> adjacentNodes = new HashMap<>();
+
+    public void addDestination(Node destination, int distance) {
+        adjacentNodes.put(destination, distance);
     }
 
+    public Node(Point2D point) {
+        this.point = point;
+    }
+
+    // getters and setters
+
+    public Point2D getName() {
+        return point;
+    }
+
+    public void setName(Point2D point) {
+        this.point = point;
+    }
+
+    public List<Node> getShortestPath() {
+        return shortestPath;
+    }
+
+    public void setShortestPath(List<Node> shortestPath) {
+        this.shortestPath = shortestPath;
+    }
+
+    public Integer getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Integer distance) {
+        this.distance = distance;
+    }
+
+    public Map<Node, Integer> getAdjacentNodes() {
+        return adjacentNodes;
+    }
+
+    public void setAdjacentNodes(Map<Node, Integer> adjacentNodes) {
+        this.adjacentNodes = adjacentNodes;
+    }
+}
+
+class Graph {
+
+    private Set<Node> nodes = new HashSet<>();
+
+    public void addNode(Node nodeA) {
+        nodes.add(nodeA);
+    }
+
+    // getters and setters
+    public Set<Node> getNodes() {
+        return nodes;
+    }
+}
+
+class Dijkstra {
+
+    public static Graph calculateShortestPathFromSource(Graph graph, Node source) {
+        source.setDistance(0);
+
+        Set<Node> settledNodes = new HashSet<>();
+        Set<Node> unsettledNodes = new HashSet<>();
+
+        unsettledNodes.add(source);
+
+        while (unsettledNodes.size() != 0) {
+            Node currentNode = getLowestDistanceNode(unsettledNodes);
+            unsettledNodes.remove(currentNode);
+            for (Map.Entry<Node, Integer> adjacencyPair :
+                    currentNode.getAdjacentNodes().entrySet()) {
+                Node adjacentNode = adjacencyPair.getKey();
+                Integer edgeWeight = adjacencyPair.getValue();
+                if (!settledNodes.contains(adjacentNode)) {
+                    calculateMinimumDistance(adjacentNode, edgeWeight, currentNode);
+                    unsettledNodes.add(adjacentNode);
+                }
+            }
+            settledNodes.add(currentNode);
+        }
+        return graph;
+    }
+
+    private static Node getLowestDistanceNode(Set<Node> unsettledNodes) {
+        Node lowestDistanceNode = null;
+        int lowestDistance = Integer.MAX_VALUE;
+        for (Node node : unsettledNodes) {
+            int nodeDistance = node.getDistance();
+            if (nodeDistance < lowestDistance) {
+                lowestDistance = nodeDistance;
+                lowestDistanceNode = node;
+            }
+        }
+        return lowestDistanceNode;
+    }
+
+    private static void calculateMinimumDistance(Node evaluationNode,
+                                                 Integer edgeWeigh, Node sourceNode) {
+        Integer sourceDistance = sourceNode.getDistance();
+        if (sourceDistance + edgeWeigh < evaluationNode.getDistance()) {
+            evaluationNode.setDistance(sourceDistance + edgeWeigh);
+            LinkedList<Node> shortestPath = new LinkedList<>(sourceNode.getShortestPath());
+            shortestPath.add(sourceNode);
+            evaluationNode.setShortestPath(shortestPath);
+        }
+    }
 }
