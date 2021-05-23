@@ -9,7 +9,6 @@ import java.awt.*;
 import java.awt.geom.Path2D;
 
 import java.awt.geom.Point2D;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import java.util.*;
@@ -19,25 +18,20 @@ public class Jasch2 extends AI {
 
     float richtung;
     int score;
-    int ownScore = 0;
+    int pathProgression = 0;
 
-    boolean tempRising, tempUp, tempLeft, tempRight;
-
-    Point[] pearl = info.getScene().getPearl(); // ziele
-    int[] pearlsTemp = new int[]{pearl[0].x, pearl[1].x, pearl[2].x, pearl[3].x, pearl[4].x, pearl[5].x, pearl[6].x, pearl[7].x, pearl[8].x, pearl[9].x};
+    Point2D[] pearl = info.getScene().getPearl(); // ziele
+    Point2D[] currentPearl;
     Path2D[] obstacles = info.getScene().getObstacles();
-    HashMap<Integer, Integer> sortedPearlsX = new HashMap<>();
-    HashMap<Integer, Integer> sortedPearlsY = new HashMap<>();
-    Point newDirection;
     ArrayList<Point2D> freespace = new ArrayList<>();
     Graph nodeGraph = new Graph();
+    ArrayList<Node> pearlNodes = new ArrayList<>();
 
     public Jasch2(Info info) {
         super(info);
-        Arrays.sort(pearlsTemp);
-        getSortedPearls();
         testing();
-        dijsktrastuff();
+        dijsktrastuffStart();
+        dijsktrastuffRepeat();
     }
 
     @Override
@@ -47,65 +41,117 @@ public class Jasch2 extends AI {
 
     @Override
     public Color getColor() {
-        return Color.RED;
+        return Color.black;
     }
 
     @Override
     public PlayerAction update() {
 
         float speed = info.getMaxAcceleration(); // max speed
-        score = info.getScore();
-        Point[] fishies = info.getScene().getFish(); // Fische
-
-        if (pearlsTemp[ownScore] == info.getX() && sortedPearlsY.get(ownScore) == info.getY()) {
-            ownScore = ownScore + 1;
+        if(score < info.getScore()){
+            dijsktrastuffRepeat();
         }
 
+
+        if(pathProgression < pearlNodes.get(score).getShortestPath().size()) {
+            goToPearl(new Point2D() {
+                @Override
+                public double getX() {
+                    return info.getX();
+                }
+
+                @Override
+                public double getY() {
+                    return info.getY();
+                }
+
+                @Override
+                public void setLocation(double a, double b) {
+                }
+            }, pearlNodes.get(score).getShortestPath().get(pathProgression).getName());
+        } else {
+            /*goToPearl(new Point2D() {
+                @Override
+                public double getX() {
+                    return info.getX();
+                }
+
+                @Override
+                public double getY() {
+                    return info.getY();
+                }
+
+                @Override
+                public void setLocation(double a, double b) {
+                }
+            }, pearlNodes.get(score).getName());*/
+        }
+        if(System.currentTimeMillis() % 3 == 0)
+        System.out.println(info.getX() + "." + info.getY());
+
+        score = info.getScore();
         return new DivingAction(speed, richtung); // Bewegung = Geschwindigkeit ∙ normalisierte Richtung
     }
 
-    public float goToPearl() {
-        newDirection = new Point(pearlsTemp[ownScore] - info.getX(), sortedPearlsY.get(ownScore) - info.getY());
+
+    public void goToPearl(Point2D start, Point2D target) {
+        Point newDirection = new Point((int) (target.getX() - start.getX()), (int) (target.getY() - start.getY()));
         richtung = (float) Math.atan2(newDirection.getY(), newDirection.getX());
 
-        return richtung;
+        if(isBetween(info.getX(),target.getX()-2,target.getX()+2) && isBetween(info.getY(),target.getY()-2,target.getY()+2)){
+            pathProgression++;
+        }
     }
 
     public void testing() {
         for (int y = 0; y < info.getScene().getHeight(); y += 10) {
             for (int x = 0; x < info.getScene().getWidth(); x += 10) {
                 if (freiBier(x, -y)) {
-                    freespace.add(new Point(x + 5, -y - 5));
+                    freespace.add(new Point(x+5, -y-5));
                 }
-                //System.out.print(freiBier(x, -y) ? "." : "#");
+                System.out.print(freiBier(x, -y) ? "." : "#");
             }
-            //System.out.println();
+            System.out.println();
         }
     }
 
     public boolean freiBier(int x, int y) {
         for (Path2D obstacle : obstacles) {
-            if (obstacle.intersects(x, y, 10, 10)) {
+            if (obstacle.contains(x, y, 10, 10)) {
                 return false;
             }
         }
         return true;
     }
-//    public void Dietrying(){
-//
-//    }
 
-    public void getSortedPearls() {
+    /*public void getSortedPearls() {
         for (int i = 0; i < pearl.length; i++) {
             sortedPearlsX.put((int) pearl[i].getX(), i);
         }
         for (int i = 0; i < pearl.length; i++) {
             sortedPearlsY.put(i, (int) pearl[sortedPearlsX.get(pearlsTemp[i])].getY());
         }
+    }*/
+
+    public void assignPearlsToNodes() {
+
+        for (Point2D point2D : pearl) {
+            Map<Double, Node> dis = new HashMap<>();
+            for (Node n : nodeGraph.getNodes()) {
+                dis.put(Math.sqrt(
+                        Math.pow(n.getName().getX() - point2D.getX(), 2) + Math.pow(n.getName().getY() - point2D.getY(), 2)), n);
+            }
+
+            ArrayList<Double> dListTemp = new ArrayList<>(dis.keySet());
+            Collections.sort(dListTemp);
+
+            pearlNodes.add(dis.get((Double)dListTemp.get(0)));
+        }
+
     }
 
-
-    public void dijsktrastuff() {
+    // executed only once
+    public void dijsktrastuffStart() {
         long time = System.currentTimeMillis();
         for (Point2D point : freespace) {
             Node n = new Node(point);
@@ -123,31 +169,75 @@ public class Jasch2 extends AI {
             }
         }
 
-        for (Node nTest : nodeGraph.getNodes()) {
+        // Debugging the distances
+        /*for (Node nTest : nodeGraph.getNodes()) {
             nTest.adjacentNodes.keySet().forEach(node -> {
                 System.out.print(node.getName() + " | ");
             });
             System.out.print("\n");
             System.out.println(nTest.adjacentNodes.values());
 
-            nodeGraph = Dijkstra.calculateShortestPathFromSource(nodeGraph, nTest); //source: Taucher
-
-            /* nodeGraph -> Ziel (Perle)
-            *  Ziel immer zum nächsten Vorgänger
-            *  immer in List speichern oder so
-            *  sobald Vorgänger source ablaufen
-            *
-            *  wiederholen
-            */
-
-            
-
             break;
+        }*/
+
+        assignPearlsToNodes();
+
+        System.err.println("Dijsktrastart in ms:"+(System.currentTimeMillis() - time));
+    }
+
+    // Repeated dijsktra
+    public void dijsktrastuffRepeat(){
+        long time = System.currentTimeMillis();
+        pathProgression =0;
+
+
+        Node source = null;
+        for (Node n : nodeGraph.getNodes()) {
+            if (n.getName().getX() == (Math.floorMod(info.getX(), 10)) * 10 + 5 && n.getName().getY() == (Math.floorMod(
+                    info.getY(), 10)) * 10 + 5) {
+                source = n;
+            }
         }
+        if (source == null) {
+            Map<Double, Node> dis = new HashMap<>();
+            for (Node n : nodeGraph.getNodes()) {
+                dis.put(Math.sqrt(
+                        Math.pow(n.getName().getX() - info.getX(), 2) + Math.pow(n.getName().getY() - info.getY(), 2)),
+                        n);
+            }
+
+            ArrayList<Double> dListTemp = new ArrayList<>(dis.keySet());
+            Collections.sort(dListTemp);
+
+            source = dis.get(dListTemp.get(0));
+        }
+
+        nodeGraph = Dijkstra.calculateShortestPathFromSource(nodeGraph, source);
+
+        pearlNodes.sort(new Comparator<Node>() {
+            @Override
+            public int compare(Node o1, Node o2) {
+                return Integer.compare(o1.getDistance(), o2.getDistance());
+            }
+        });
+
+        System.out.println("Source: " + source.getName());
+        pearlNodes.get(info.getScore()).getShortestPath().forEach(node -> {System.out.print(node.getName()+" | ");});
+        System.out.println();
+        //  //source: Taucher
+
+        /* nodeGraph -> Ziel (Perle)
+         *  Ziel immer zum nächsten Vorgänger
+         *  immer in List speichern oder so
+         *  sobald Vorgänger source, ablaufen
+         *
+         *  wiederholen
+         */
+
 
         // Position des Tauchers, Perle nähe Node, graph?
 
-        System.err.println(System.currentTimeMillis() - time);
+        System.err.println("DijsktraRepeated in ms:"+(System.currentTimeMillis() - time));
     }
 
     public boolean isBetween(double valueToBeChecked, double lowerBound, double upperBound) {
