@@ -33,13 +33,16 @@ public class Jasch2 extends AI {
     public Jasch2(Info info) {
         super(info);
         testing();
+
+        enlistForTournament(573132, 573689);
+
         dijsktrastuffStart();
         dijsktrastuffRepeat();
     }
 
     @Override
     public String getName() {
-        return "JaschWIP";
+        return "Crigne";
     }
 
     @Override
