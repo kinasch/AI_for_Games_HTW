@@ -141,15 +141,6 @@ public class Jasch2 extends AI {
         return true;
     }
 
-    /*public void getSortedPearls() {
-        for (int i = 0; i < pearl.length; i++) {
-            sortedPearlsX.put((int) pearl[i].getX(), i);
-        }
-        for (int i = 0; i < pearl.length; i++) {
-            sortedPearlsY.put(i, (int) pearl[sortedPearlsX.get(pearlsTemp[i])].getY());
-        }
-    }*/
-
     public void assignPearlsToNodes() {
 
         pearlNodes = new ArrayList<Node>();
@@ -192,20 +183,9 @@ public class Jasch2 extends AI {
             }
         }
 
-        // Debugging the distances
-        /*for (Node nTest : nodeGraph.getNodes()) {
-            nTest.adjacentNodes.keySet().forEach(node -> {
-                System.out.print(node.getName() + " | ");
-            });
-            System.out.print("\n");
-            System.out.println(nTest.adjacentNodes.values());
-
-            break;
-        }*/
-
         assignPearlsToNodes();
 
-        System.err.println("Dijsktrastart in ms:" + (System.currentTimeMillis() - time));
+//        System.err.println("Dijsktrastart in ms:" + (System.currentTimeMillis() - time));
     }
 
     // Repeated dijsktra
@@ -251,25 +231,13 @@ public class Jasch2 extends AI {
             }
         });
 
-        System.out.println("Source: " + source.getName());
+        /*System.out.println("Source: " + source.getName());
         pearlNodes.get(0).getShortestPath().forEach(node -> {
             System.out.print(node.getName() + " | ");
         });
-        System.out.println();
-        //  //source: Taucher
+        System.out.println();*/
 
-        /* nodeGraph -> Ziel (Perle)
-         *  Ziel immer zum nächsten Vorgänger
-         *  immer in List speichern oder so
-         *  sobald Vorgänger source, ablaufen
-         *
-         *  wiederholen
-         */
-
-
-        // Position des Tauchers, Perle nähe Node, graph?
-
-        System.err.println("DijsktraRepeated in ms:" + (System.currentTimeMillis() - time));
+//        System.err.println("DijsktraRepeated in ms:" + (System.currentTimeMillis() - time));
     }
 
     public boolean isBetween(double valueToBeChecked, double lowerBound, double upperBound) {
