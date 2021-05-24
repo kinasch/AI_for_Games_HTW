@@ -17,7 +17,7 @@ import java.util.List;
 public class Jasch2 extends AI {
 
     float richtung;
-    int score;
+    int score = info.getScore();
     int pathProgression = 0;
 
     Point2D[] pearl = info.getScene().getPearl(); // ziele
@@ -26,6 +26,7 @@ public class Jasch2 extends AI {
     ArrayList<Point2D> freespace = new ArrayList<>();
     Graph nodeGraph = new Graph();
     ArrayList<Node> pearlNodes = new ArrayList<>();
+    ArrayList<Node> removedPearlNodes = new ArrayList<>();
 
     public Jasch2(Info info) {
         super(info);
@@ -48,12 +49,14 @@ public class Jasch2 extends AI {
     public PlayerAction update() {
 
         float speed = info.getMaxAcceleration(); // max speed
-        if(score < info.getScore()){
+        if (score < info.getScore()) {
+            removedPearlNodes.add(pearlNodes.remove(0));
             dijsktrastuffRepeat();
         }
 
+        score = info.getScore();
 
-        if(pathProgression < pearlNodes.get(score).getShortestPath().size()) {
+        if (pathProgression < pearlNodes.get(0).getShortestPath().size() - 1) {
             goToPearl(new Point2D() {
                 @Override
                 public double getX() {
@@ -68,9 +71,9 @@ public class Jasch2 extends AI {
                 @Override
                 public void setLocation(double a, double b) {
                 }
-            }, pearlNodes.get(score).getShortestPath().get(pathProgression).getName());
+            }, pearlNodes.get(0).getShortestPath().get(pathProgression).getName());
         } else {
-            /*goToPearl(new Point2D() {
+            goToPearl(new Point2D() {
                 @Override
                 public double getX() {
                     return info.getX();
@@ -84,12 +87,12 @@ public class Jasch2 extends AI {
                 @Override
                 public void setLocation(double a, double b) {
                 }
-            }, pearlNodes.get(score).getName());*/
+            }, pearlNodes.get(0).getName());
         }
-        if(System.currentTimeMillis() % 3 == 0)
-        System.out.println(info.getX() + "." + info.getY());
+        if (System.currentTimeMillis() % 3 == 0)
+            System.out.println(info.getX() + "." + info.getY());
 
-        score = info.getScore();
+
         return new DivingAction(speed, richtung); // Bewegung = Geschwindigkeit ∙ normalisierte Richtung
     }
 
@@ -98,18 +101,21 @@ public class Jasch2 extends AI {
         Point newDirection = new Point((int) (target.getX() - start.getX()), (int) (target.getY() - start.getY()));
         richtung = (float) Math.atan2(newDirection.getY(), newDirection.getX());
 
-        if(isBetween(info.getX(),target.getX()-2,target.getX()+2) && isBetween(info.getY(),target.getY()-2,target.getY()+2)){
+        int bound = 1;
+        if (isBetween(info.getX(), target.getX() - bound, target.getX() + bound) && isBetween(info.getY(), target.getY() - bound,
+                target.getY() + bound)) {
             pathProgression++;
         }
+
     }
 
     public void testing() {
         for (int y = 0; y < info.getScene().getHeight(); y += 10) {
             for (int x = 0; x < info.getScene().getWidth(); x += 10) {
-                if (freiBier(x, -y)) {
-                    freespace.add(new Point(x+5, -y-5));
+                if (freiBier(x+10, -y-10)) {
+                    freespace.add(new Point(x, -y));
                 }
-                System.out.print(freiBier(x, -y) ? "." : "#");
+                System.out.print(freiBier(x, -y) ? "." +" ": "#" + " ");
             }
             System.out.println();
         }
@@ -135,17 +141,23 @@ public class Jasch2 extends AI {
 
     public void assignPearlsToNodes() {
 
+        pearlNodes = new ArrayList<Node>();
+
         for (Point2D point2D : pearl) {
             Map<Double, Node> dis = new HashMap<>();
             for (Node n : nodeGraph.getNodes()) {
                 dis.put(Math.sqrt(
-                        Math.pow(n.getName().getX() - point2D.getX(), 2) + Math.pow(n.getName().getY() - point2D.getY(), 2)), n);
+                        Math.pow(n.getName().getX() - point2D.getX(), 2) + Math.pow(n.getName().getY() - point2D.getY(),
+                                2)), n);
             }
 
             ArrayList<Double> dListTemp = new ArrayList<>(dis.keySet());
             Collections.sort(dListTemp);
 
-            pearlNodes.add(dis.get((Double)dListTemp.get(0)));
+            Node p = dis.get((Double) dListTemp.get(0));
+            if(!removedPearlNodes.contains(p)){
+                pearlNodes.add(p);
+            }
         }
 
     }
@@ -182,13 +194,13 @@ public class Jasch2 extends AI {
 
         assignPearlsToNodes();
 
-        System.err.println("Dijsktrastart in ms:"+(System.currentTimeMillis() - time));
+        System.err.println("Dijsktrastart in ms:" + (System.currentTimeMillis() - time));
     }
 
     // Repeated dijsktra
-    public void dijsktrastuffRepeat(){
+    public void dijsktrastuffRepeat() {
         long time = System.currentTimeMillis();
-        pathProgression =0;
+        pathProgression = 0;
 
 
         Node source = null;
@@ -212,7 +224,14 @@ public class Jasch2 extends AI {
             source = dis.get(dListTemp.get(0));
         }
 
+        for(Node n: nodeGraph.getNodes()){
+            n.setShortestPath(new LinkedList<>());
+            n.setDistance(Integer.MAX_VALUE);
+        }
+
         nodeGraph = Dijkstra.calculateShortestPathFromSource(nodeGraph, source);
+
+        assignPearlsToNodes();
 
         pearlNodes.sort(new Comparator<Node>() {
             @Override
@@ -222,7 +241,9 @@ public class Jasch2 extends AI {
         });
 
         System.out.println("Source: " + source.getName());
-        pearlNodes.get(info.getScore()).getShortestPath().forEach(node -> {System.out.print(node.getName()+" | ");});
+        pearlNodes.get(0).getShortestPath().forEach(node -> {
+            System.out.print(node.getName() + " | ");
+        });
         System.out.println();
         //  //source: Taucher
 
@@ -237,7 +258,7 @@ public class Jasch2 extends AI {
 
         // Position des Tauchers, Perle nähe Node, graph?
 
-        System.err.println("DijsktraRepeated in ms:"+(System.currentTimeMillis() - time));
+        System.err.println("DijsktraRepeated in ms:" + (System.currentTimeMillis() - time));
     }
 
     public boolean isBetween(double valueToBeChecked, double lowerBound, double upperBound) {
@@ -250,7 +271,7 @@ public class Jasch2 extends AI {
 
 }
 
-// Inspired by https://www.baeldung.com/java-dijkstra
+// Code taken from: https://www.baeldung.com/java-dijkstra
 class Node {
 
     private Point2D point;
