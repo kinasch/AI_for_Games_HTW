@@ -161,20 +161,20 @@ public class Work_in_Cringness extends AI {
 
 
 
-class Node{
-
-    ArrayList<Node> nodes = new ArrayList<>();
-    Point2D p;
-
-    public Node(Point2D p){
-        this.p = p;
-    }
-
-    public Point2D getPoint(){
-        return this.p;
-    }
-
-//    public Point2D setNeightbour(){
+//class Node{
 //
+//    ArrayList<Node> nodes = new ArrayList<>();
+//    Point2D p;
+//
+//    public Node(Point2D p){
+//        this.p = p;
 //    }
-}
+//
+//    public Point2D getPoint(){
+//        return this.p;
+//    }
+//
+////    public Point2D setNeightbour(){
+////
+////    }
+//}
