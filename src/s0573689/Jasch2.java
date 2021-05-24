@@ -64,6 +64,9 @@ public class Jasch2 extends AI {
                 notfall = point;
             }
         }
+        if(notfall == null){
+            notfall = pearlNodes.get(0).getName();
+        }
 
         if (pathProgression < pearlNodes.get(0).getShortestPath().size() - 1) {
             goToPearl(new Point2D() {
@@ -123,9 +126,9 @@ public class Jasch2 extends AI {
                 if (freiBier(x, -y-w)) {
                     freespace.add(new Point(x+(int)((float)w/2), -y-(int)((float)w/2)));
                 }
-                System.out.print(freiBier(x, -y) ? "." +" ": "#" + " ");
+//                System.out.print(freiBier(x, -y) ? "." +" ": "#" + " ");
             }
-            System.out.println();
+//            System.out.println();
         }
     }
 
