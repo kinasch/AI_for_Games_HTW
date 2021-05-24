@@ -112,7 +112,7 @@ public class Jasch2 extends AI {
     public void goToPearl(Point2D start, Point2D target) {
         Point newDirection = new Point((int) (target.getX() - start.getX()), (int) (target.getY() - start.getY()));
         if(!target.equals(start)) {
-            richtung = (float) Math.atan2(newDirection.getY(), newDirection.getX());
+            richtung = (float) Math.atan2(newDirection.getY()  -0.01f, newDirection.getX());
         }
 
         int bound = 1;
