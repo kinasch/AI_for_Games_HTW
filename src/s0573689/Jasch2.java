@@ -28,6 +28,8 @@ public class Jasch2 extends AI {
     ArrayList<Node> pearlNodes = new ArrayList<>();
     ArrayList<Node> removedPearlNodes = new ArrayList<>();
 
+    int w = 10;
+
     public Jasch2(Info info) {
         super(info);
         testing();
@@ -55,6 +57,13 @@ public class Jasch2 extends AI {
         }
 
         score = info.getScore();
+
+        Point2D notfall=null;
+        for(Point2D point : pearl){
+            if(isBetween(point.getX(),pearlNodes.get(0).getName().getX()-10,pearlNodes.get(0).getName().getX()+10) && isBetween(point.getY(),pearlNodes.get(0).getName().getY()-10,pearlNodes.get(0).getName().getY()+10)){
+                notfall = point;
+            }
+        }
 
         if (pathProgression < pearlNodes.get(0).getShortestPath().size() - 1) {
             goToPearl(new Point2D() {
@@ -87,11 +96,8 @@ public class Jasch2 extends AI {
                 @Override
                 public void setLocation(double a, double b) {
                 }
-            }, pearlNodes.get(0).getName());
+            }, notfall);
         }
-        if (System.currentTimeMillis() % 3 == 0)
-            System.out.println(info.getX() + "." + info.getY());
-
 
         return new DivingAction(speed, richtung); // Bewegung = Geschwindigkeit ∙ normalisierte Richtung
     }
@@ -99,7 +105,9 @@ public class Jasch2 extends AI {
 
     public void goToPearl(Point2D start, Point2D target) {
         Point newDirection = new Point((int) (target.getX() - start.getX()), (int) (target.getY() - start.getY()));
-        richtung = (float) Math.atan2(newDirection.getY(), newDirection.getX());
+        if(!target.equals(start)) {
+            richtung = (float) Math.atan2(newDirection.getY(), newDirection.getX());
+        }
 
         int bound = 1;
         if (isBetween(info.getX(), target.getX() - bound, target.getX() + bound) && isBetween(info.getY(), target.getY() - bound,
@@ -110,10 +118,10 @@ public class Jasch2 extends AI {
     }
 
     public void testing() {
-        for (int y = 0; y < info.getScene().getHeight(); y += 10) {
-            for (int x = 0; x < info.getScene().getWidth(); x += 10) {
-                if (freiBier(x+10, -y-10)) {
-                    freespace.add(new Point(x, -y));
+        for (int y = 0; y < info.getScene().getHeight(); y += w) {
+            for (int x = 0; x < info.getScene().getWidth(); x += w) {
+                if (freiBier(x, -y-w)) {
+                    freespace.add(new Point(x+(int)((float)w/2), -y-(int)((float)w/2)));
                 }
                 System.out.print(freiBier(x, -y) ? "." +" ": "#" + " ");
             }
@@ -123,7 +131,7 @@ public class Jasch2 extends AI {
 
     public boolean freiBier(int x, int y) {
         for (Path2D obstacle : obstacles) {
-            if (obstacle.contains(x, y, 10, 10)) {
+            if (obstacle.intersects(x, y, w, w)) {
                 return false;
             }
         }
@@ -172,10 +180,10 @@ public class Jasch2 extends AI {
 
         for (Node n : nodeGraph.getNodes()) {
             for (Node neighbour : nodeGraph.getNodes()) {
-                if (isBetween(neighbour.getName().getX(), n.getName().getX() - 10, n.getName().getX() + 10)
-                        && isBetween(neighbour.getName().getY(), n.getName().getY() - 10, n.getName().getY() + 10)
+                if (isBetween(neighbour.getName().getX(), n.getName().getX() - w, n.getName().getX() + w)
+                        && isBetween(neighbour.getName().getY(), n.getName().getY() - w, n.getName().getY() + w)
                         && n.getName() != neighbour.getName()) {
-                    int distance = neighbour.getName().getX() == n.getName().getX() || neighbour.getName().getY() == n.getName().getY() ? 10 : 14;
+                    int distance = neighbour.getName().getX() == n.getName().getX() || neighbour.getName().getY() == n.getName().getY() ? w : (int)Math.floor(Math.sqrt(w*w+w*w));
                     n.adjacentNodes.put(neighbour, distance);
                 }
             }
@@ -205,8 +213,8 @@ public class Jasch2 extends AI {
 
         Node source = null;
         for (Node n : nodeGraph.getNodes()) {
-            if (n.getName().getX() == (Math.floorMod(info.getX(), 10)) * 10 + 5 && n.getName().getY() == (Math.floorMod(
-                    info.getY(), 10)) * 10 + 5) {
+            if (n.getName().getX() == (Math.floorMod(info.getX(), w)) * w + (float)w/2 && n.getName().getY() == (Math.floorMod(
+                    info.getY(), w)) * w + (float)w/2) {
                 source = n;
             }
         }
