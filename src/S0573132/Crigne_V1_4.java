@@ -20,6 +20,7 @@ public class Crigne_V1_4 extends AI {
     int score = info.getScore();
     int pathProgression = 0;
     int w = 10;
+    boolean airbool = true;
 
     Point2D[] pearl = info.getScene().getPearl(); // ziele
     Point2D[] currentPearl;
@@ -49,6 +50,9 @@ public class Crigne_V1_4 extends AI {
 
     @Override
     public PlayerAction update() {
+
+
+
 
         float speed = info.getMaxAcceleration(); // max speed
         if (score < info.getScore()) {
@@ -107,15 +111,30 @@ public class Crigne_V1_4 extends AI {
 
 
     public void goToPearl(Point2D start, Point2D target) {
-        Point newDirection = new Point((int) (target.getX() - start.getX()), (int) (target.getY() - start.getY()));
-        if(!target.equals(start)) {
-            richtung = (float) Math.atan2(newDirection.getY() -0.01f, newDirection.getX());
+        if(info.getY() == 0 && score !=0){
+            airbool = true;
         }
 
-        int bound = 1;
-        if (isBetween(info.getX(), target.getX() - bound, target.getX() + bound) && isBetween(info.getY(), target.getY() - bound,
+        if(info.getAir()-50 < -info.getY()){
+            airbool = false;
+        }
+
+
+        if(airbool){
+            Point newDirection = new Point((int) (target.getX() - start.getX()), (int) (target.getY() - start.getY()));
+                if(!target.equals(start)) {
+                    richtung = (float) Math.atan2(newDirection.getY(), newDirection.getX());
+                }
+            int bound = 1;
+            if (isBetween(info.getX(), target.getX() - bound, target.getX() + bound) && isBetween(info.getY(), target.getY() - bound,
                 target.getY() + bound)) {
-            pathProgression++;
+                pathProgression++;
+            }
+        }else{ // setze neue ziel oberfläche
+
+//            Point newDirection = new Point((int) (target.getX() - start.getX()), (int) (target.getY() - start.getY()));
+//            richtung = (float) Math.atan2(newDirection2.getY(), newDirection2.getX());
+            richtung = (float)Math.PI / 2;
         }
 
     }
