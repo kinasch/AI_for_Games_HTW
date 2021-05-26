@@ -106,9 +106,7 @@ public class Work_in_Cringness extends AI {
                 if (freiBier(x, -y)) {
                    freespace.add(new Point(x+5, -y-5));
                 }
-                System.out.print(freiBier(x,-y) ? "." : "#");
             }
-            System.out.println();
         }
     }
     public boolean freiBier(int x, int y){

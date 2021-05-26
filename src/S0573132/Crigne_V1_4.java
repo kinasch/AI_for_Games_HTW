@@ -51,9 +51,6 @@ public class Crigne_V1_4 extends AI {
     @Override
     public PlayerAction update() {
 
-
-
-
         float speed = info.getMaxAcceleration(); // max speed
         if (score < info.getScore()) {
             removedPearlNodes.add(pearlNodes.remove(0));
@@ -105,7 +102,7 @@ public class Crigne_V1_4 extends AI {
                 }
             }, notfall);
         }
-
+        System.out.println(info.getY());
         return new DivingAction(speed, richtung); // Bewegung = Geschwindigkeit ∙ normalisierte Richtung
     }
 
@@ -115,7 +112,7 @@ public class Crigne_V1_4 extends AI {
             airbool = true;
         }
 
-        if(info.getAir()-50 < -info.getY()){
+        if(info.getAir() < -info.getY()){
             airbool = false;
         }
 
@@ -145,9 +142,7 @@ public class Crigne_V1_4 extends AI {
                 if (freiBier(x, -y-w)) {
                     freespace.add(new Point(x+(int)((float)w/2), -y-(int)((float)w/2)));
                 }
-//                System.out.print(freiBier(x, -y) ? "." +" ": "#" + " ");
             }
-//            System.out.println();
         }
     }
 
@@ -201,8 +196,7 @@ public class Crigne_V1_4 extends AI {
         }
 
         assignPearlsToNodes();
-
-//        System.err.println("Dijsktrastart in ms:" + (System.currentTimeMillis() - time));
+        ;
     }
 
     // Repeated dijsktra
@@ -245,14 +239,6 @@ public class Crigne_V1_4 extends AI {
                 return Integer.compare(o1.getDistance(), o2.getDistance());
             }
         });
-
-        /*System.out.println("Source: " + source.getName());
-        pearlNodes.get(0).getShortestPath().forEach(node -> {
-            System.out.print(node.getName() + " | ");
-        });
-        System.out.println();*/
-
-//        System.err.println("DijsktraRepeated in ms:" + (System.currentTimeMillis() - time));
     }
 
     public boolean isBetween(double valueToBeChecked, double lowerBound, double upperBound) {
@@ -261,8 +247,6 @@ public class Crigne_V1_4 extends AI {
         }
         return false;
     }
-
-
 }
 
 // Code taken from: https://www.baeldung.com/java-dijkstra
