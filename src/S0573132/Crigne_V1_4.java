@@ -29,6 +29,7 @@ public class Crigne_V1_4 extends AI {
     Graph nodeGraph = new Graph();
     ArrayList<Node> pearlNodes = new ArrayList<>();
     ArrayList<Node> removedPearlNodes = new ArrayList<>();
+    Point2D tempTarget;
 
     public Crigne_V1_4(Info info) {
         super(info);
@@ -107,8 +108,11 @@ public class Crigne_V1_4 extends AI {
     }
 
 
+    // Vielleicht können wir den Taucher an der Oberfläche schwimmen lassen
+    // bis er über der Perle ist und dann Wegesuche betreiben.
+
     public void goToPearl(Point2D start, Point2D target) {
-        if(info.getY() == 0 && score !=0){
+        if(info.getAir() == info.getMaxAir()/*info.getY() == 0 && score !=0*/){
             airbool = true;
         }
 
@@ -118,6 +122,7 @@ public class Crigne_V1_4 extends AI {
 
 
         if(airbool){
+            tempTarget = null;
             Point newDirection = new Point((int) (target.getX() - start.getX()), (int) (target.getY() - start.getY()));
                 if(!target.equals(start)) {
                     richtung = (float) Math.atan2(newDirection.getY(), newDirection.getX());
@@ -131,6 +136,16 @@ public class Crigne_V1_4 extends AI {
 
 //            Point newDirection = new Point((int) (target.getX() - start.getX()), (int) (target.getY() - start.getY()));
 //            richtung = (float) Math.atan2(newDirection2.getY(), newDirection2.getX());
+            if(tempTarget == null) {
+                for (Node node : this.nodeGraph.getNodes()) {
+                    if (node.getName().getX() == start.getX() && node.getName().getY() < 10) {
+                        tempTarget = node.getName();
+                    }
+                }
+            }
+
+            target = tempTarget;
+
             richtung = (float)Math.PI / 2;
         }
 
