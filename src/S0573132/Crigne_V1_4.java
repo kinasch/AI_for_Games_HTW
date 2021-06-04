@@ -18,9 +18,9 @@ public class Crigne_V1_4 extends AI {
 
     float richtung;
     int score = info.getScore();
-    int pathProgression = 0;
+    int pathProgression = 0, pathProgression2 = 1;
     int w = 10;
-    boolean airbool = true;
+    boolean airbool = true, boolbool = true, unknownbool = false;
 
     Point2D[] pearl = info.getScene().getPearl(); // ziele
     Point2D[] currentPearl;
@@ -29,7 +29,7 @@ public class Crigne_V1_4 extends AI {
     Graph nodeGraph = new Graph();
     ArrayList<Node> pearlNodes = new ArrayList<>();
     ArrayList<Node> removedPearlNodes = new ArrayList<>();
-    Point2D tempTarget;
+    ArrayList<Node> tempTarget;
 
     public Crigne_V1_4(Info info) {
         super(info);
@@ -58,36 +58,67 @@ public class Crigne_V1_4 extends AI {
             dijsktrastuffRepeat();
         }
 
+
+        if (info.getAir() == info.getMaxAir() && !isBetween(info.getX(), pearlNodes.get(0).getName().getX() - 4, pearlNodes.get(0).getName().getX() + 4)) {
+            richtung = pearlNodes.get(0).getName().getX() < info.getX() ? (float) Math.PI : 0;
+            return new DivingAction(speed, richtung);
+        }
+
+        if (info.getAir() == info.getMaxAir() && isBetween(info.getX(), pearlNodes.get(0).getName().getX() - 4, pearlNodes.get(0).getName().getX() + 4)) {
+            dijsktrastuffRepeat();
+            if (pearlNodes.size() < 3) {
+                unknownbool = true;
+            }
+        }
+
         score = info.getScore();
 
-        Point2D notfall=null;
-        for(Point2D point : pearl){
-            if(isBetween(point.getX(),pearlNodes.get(0).getName().getX()-10,pearlNodes.get(0).getName().getX()+10) && isBetween(point.getY(),pearlNodes.get(0).getName().getY()-10,pearlNodes.get(0).getName().getY()+10)){
+        Point2D notfall = null;
+        for (Point2D point : pearl) {
+            if (isBetween(point.getX(), pearlNodes.get(0).getName().getX() - 10, pearlNodes.get(0).getName().getX() + 10) && isBetween(point.getY(), pearlNodes.get(0).getName().getY() - 10, pearlNodes.get(0).getName().getY() + 10)) {
                 notfall = point;
             }
         }
-        if(notfall == null){
+        if (notfall == null) {
             notfall = pearlNodes.get(0).getName();
         }
 
-        if (pathProgression < pearlNodes.get(0).getShortestPath().size() - 1) {
-            goToPearl(new Point2D() {
-                @Override
-                public double getX() {
-                    return info.getX();
-                }
+        if (airbool || unknownbool) {
+            if (pathProgression < pearlNodes.get(0).getShortestPath().size() - 1) {
+                goToPearl(new Point2D() {
+                    @Override
+                    public double getX() {
+                        return info.getX();
+                    }
 
-                @Override
-                public double getY() {
-                    return info.getY();
-                }
+                    @Override
+                    public double getY() {
+                        return info.getY();
+                    }
 
-                @Override
-                public void setLocation(double a, double b) {
-                }
-            }, pearlNodes.get(0).getShortestPath().get(pathProgression).getName());
+                    @Override
+                    public void setLocation(double a, double b) {
+                    }
+                }, pearlNodes.get(0).getShortestPath().get(pathProgression).getName());
+            } else {
+                goToPearl(new Point2D() {
+                    @Override
+                    public double getX() {
+                        return info.getX();
+                    }
+
+                    @Override
+                    public double getY() {
+                        return info.getY();
+                    }
+
+                    @Override
+                    public void setLocation(double a, double b) {
+                    }
+                }, notfall);
+            }
         } else {
-            goToPearl(new Point2D() {
+            /*goToPearl(new Point2D() {
                 @Override
                 public double getX() {
                     return info.getX();
@@ -99,11 +130,92 @@ public class Crigne_V1_4 extends AI {
                 }
 
                 @Override
-                public void setLocation(double a, double b) {
+                public void setLocation(double x, double y) {
+
                 }
-            }, notfall);
+            }, new Point2D() {
+                @Override
+                public double getX() {
+                    return info.getX();
+                }
+
+                @Override
+                public double getY() {
+                    return info.getY();
+                }
+
+                @Override
+                public void setLocation(double x, double y) {
+
+                }
+            });*/
+            if (tempTarget != null) {
+                if (pathProgression2 < tempTarget.size() - 1) {
+                    goToPearl(new Point2D() {
+                        @Override
+                        public double getX() {
+                            return info.getX();
+                        }
+
+                        @Override
+                        public double getY() {
+                            return info.getY();
+                        }
+
+                        @Override
+                        public void setLocation(double a, double b) {
+                        }
+                    }, tempTarget.get(pathProgression2).getName());
+                } else {
+                    goToPearl(new Point2D() {
+                        @Override
+                        public double getX() {
+                            return info.getX();
+                        }
+
+                        @Override
+                        public double getY() {
+                            return info.getY();
+                        }
+
+                        @Override
+                        public void setLocation(double a, double b) {
+                        }
+                    }, new Point2D() {
+                        @Override
+                        public double getX() {
+                            return info.getX();
+                        }
+
+                        @Override
+                        public double getY() {
+                            return 0;
+                        }
+
+                        @Override
+                        public void setLocation(double x, double y) {
+
+                        }
+                    });
+                }
+            } else {
+                for (Node node : this.nodeGraph.getNodes()) {
+                    if (isBetween(node.getName().getX(), info.getX() - 4, info.getX() + 4) && node.getName().getY() > -10) {
+                        tempTarget = new ArrayList<>(node.getShortestPath());
+                        tempTarget.add(node);
+                    }
+                }
+            }
         }
-        System.out.println(info.getY());
+
+        System.out.println("target: " + pearlNodes.get(0).getShortestPath().get(pathProgression).getName() + " temptarget: ");
+        if (tempTarget != null) {
+            tempTarget.forEach(node -> {
+                System.out.print(node.getName() + " | ");
+            });
+        }
+        System.out.println();
+
         return new DivingAction(speed, richtung); // Bewegung = Geschwindigkeit ∙ normalisierte Richtung
     }
 
@@ -112,41 +224,48 @@ public class Crigne_V1_4 extends AI {
     // bis er über der Perle ist und dann Wegesuche betreiben.
 
     public void goToPearl(Point2D start, Point2D target) {
-        if(info.getAir() == info.getMaxAir()/*info.getY() == 0 && score !=0*/){
+        if (info.getAir() == info.getMaxAir()/*info.getY() == 0 && score !=0*/) {
             airbool = true;
+            boolbool = true;
         }
 
-        if(info.getAir() < -info.getY()){
+        if (info.getAir() < -info.getY() - 25) {
             airbool = false;
+            if (boolbool) {
+                dijsktrastuffRepeat(); //zum nach oben schwimmen
+            }
+            boolbool = false;
         }
 
-
-        if(airbool){
+        if (airbool || unknownbool) {
             tempTarget = null;
             Point newDirection = new Point((int) (target.getX() - start.getX()), (int) (target.getY() - start.getY()));
-                if(!target.equals(start)) {
-                    richtung = (float) Math.atan2(newDirection.getY(), newDirection.getX());
-                }
+            if (!target.equals(start)) {
+                richtung = (float) Math.atan2(newDirection.getY(), newDirection.getX());
+            }
             int bound = 1;
             if (isBetween(info.getX(), target.getX() - bound, target.getX() + bound) && isBetween(info.getY(), target.getY() - bound,
-                target.getY() + bound)) {
+                    target.getY() + bound)) {
                 pathProgression++;
             }
-        }else{ // setze neue ziel oberfläche
-
-//            Point newDirection = new Point((int) (target.getX() - start.getX()), (int) (target.getY() - start.getY()));
-//            richtung = (float) Math.atan2(newDirection2.getY(), newDirection2.getX());
-            if(tempTarget == null) {
+        } else { // setze neue ziel oberfläche
+            if (tempTarget == null) {
                 for (Node node : this.nodeGraph.getNodes()) {
-                    if (node.getName().getX() == start.getX() && node.getName().getY() < 10) {
-                        tempTarget = node.getName();
+                    if (isBetween(node.getName().getX(), info.getX() - 4, info.getX() + 4) && node.getName().getY() > -10) {
+                        tempTarget = new ArrayList<>(node.getShortestPath());
+                        tempTarget.add(node);
                     }
                 }
             }
-
-            target = tempTarget;
-
-            richtung = (float)Math.PI / 2;
+            int bound = 1;
+            if (isBetween(info.getX(), target.getX() - bound, target.getX() + bound) && isBetween(info.getY(), target.getY() - bound,
+                    target.getY() + bound)) {
+                pathProgression2++;
+            }
+            Point newDirection = new Point((int) (target.getX() - start.getX()), (int) (target.getY() - start.getY()));
+            if (!target.equals(start)) {
+                richtung = (float) Math.atan2(newDirection.getY(), newDirection.getX());
+            }
         }
 
     }
@@ -154,8 +273,8 @@ public class Crigne_V1_4 extends AI {
     public void testing() {
         for (int y = 0; y < info.getScene().getHeight(); y += w) {
             for (int x = 0; x < info.getScene().getWidth(); x += w) {
-                if (freiBier(x, -y-w)) {
-                    freespace.add(new Point(x+(int)((float)w/2), -y-(int)((float)w/2)));
+                if (freiBier(x, -y - w)) {
+                    freespace.add(new Point(x + (int) ((float) w / 2), -y - (int) ((float) w / 2)));
                 }
             }
         }
@@ -184,7 +303,7 @@ public class Crigne_V1_4 extends AI {
             Collections.sort(dListTemp);
 
             Node p = dis.get((Double) dListTemp.get(0));
-            if(!removedPearlNodes.contains(p)){
+            if (!removedPearlNodes.contains(p)) {
                 pearlNodes.add(p);
             }
         }
@@ -204,7 +323,7 @@ public class Crigne_V1_4 extends AI {
                 if (isBetween(neighbour.getName().getX(), n.getName().getX() - w, n.getName().getX() + w)
                         && isBetween(neighbour.getName().getY(), n.getName().getY() - w, n.getName().getY() + w)
                         && n.getName() != neighbour.getName()) {
-                    int distance = neighbour.getName().getX() == n.getName().getX() || neighbour.getName().getY() == n.getName().getY() ? w : (int)Math.floor(Math.sqrt(w*w+w*w));
+                    int distance = neighbour.getName().getX() == n.getName().getX() || neighbour.getName().getY() == n.getName().getY() ? w : (int) Math.floor(Math.sqrt(w * w + w * w));
                     n.adjacentNodes.put(neighbour, distance);
                 }
             }
@@ -218,12 +337,13 @@ public class Crigne_V1_4 extends AI {
     public void dijsktrastuffRepeat() {
         long time = System.currentTimeMillis();
         pathProgression = 0;
+        pathProgression2 = 1;
 
 
         Node source = null;
         for (Node n : nodeGraph.getNodes()) {
-            if (n.getName().getX() == (Math.floorMod(info.getX(), w)) * w + (float)w/2 && n.getName().getY() == (Math.floorMod(
-                    info.getY(), w)) * w + (float)w/2) {
+            if (n.getName().getX() == (Math.floorMod(info.getX(), w)) * w + (float) w / 2 && n.getName().getY() == (Math.floorMod(
+                    info.getY(), w)) * w + (float) w / 2) {
                 source = n;
             }
         }
@@ -239,7 +359,7 @@ public class Crigne_V1_4 extends AI {
             source = dis.get(dListTemp.get(0));
         }
 
-        for(Node n: nodeGraph.getNodes()){
+        for (Node n : nodeGraph.getNodes()) {
             n.setShortestPath(new LinkedList<>());
             n.setDistance(Integer.MAX_VALUE);
         }
