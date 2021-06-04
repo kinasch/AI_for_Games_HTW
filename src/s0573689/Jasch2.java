@@ -208,14 +208,6 @@ public class Jasch2 extends AI {
             }
         }
 
-        System.out.println("target: " + pearlNodes.get(0).getShortestPath().get(pathProgression).getName() + " temptarget: ");
-        if (tempTarget != null) {
-            tempTarget.forEach(node -> {
-                System.out.print(node.getName() + " | ");
-            });
-        }
-        System.out.println();
-
         return new DivingAction(speed, richtung); // Bewegung = Geschwindigkeit ∙ normalisierte Richtung
     }
 
