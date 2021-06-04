@@ -1,4 +1,4 @@
-package s0573689;
+package S0573132;
 
 import lenz.htw.ai4g.ai.AI;
 import lenz.htw.ai4g.ai.DivingAction;
@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.*;
 import java.util.List;
 
-public class Jasch2 extends AI {
+public class Cringe_V1_4_1 extends AI {
 
     float richtung;
     int score = info.getScore();
@@ -26,12 +26,12 @@ public class Jasch2 extends AI {
     Point2D[] currentPearl;
     Path2D[] obstacles = info.getScene().getObstacles();
     ArrayList<Point2D> freespace = new ArrayList<>();
-    GraphJasch1 nodeGraph = new GraphJasch1();
-    ArrayList<NodeJasch1> pearlNodes = new ArrayList<>();
-    ArrayList<NodeJasch1> removedPearlNodes = new ArrayList<>();
-    ArrayList<NodeJasch1> tempTarget;
+    Graph_WIC nodeGraph = new Graph_WIC();
+    ArrayList<Node_WIC> pearlNodes = new ArrayList<>();
+    ArrayList<Node_WIC> removedPearlNodes = new ArrayList<>();
+    ArrayList<Node_WIC> tempTarget;
 
-    public Jasch2(Info info) {
+    public Cringe_V1_4_1(Info info) {
         super(info);
         testing();
         //enlistForTournament(573132, 573689);
@@ -41,7 +41,7 @@ public class Jasch2 extends AI {
 
     @Override
     public String getName() {
-        return "Jasch 2 (0)";
+        return "v1.4.1 (+50)";
     }
 
     @Override
@@ -118,37 +118,6 @@ public class Jasch2 extends AI {
                 }, notfall);
             }
         } else {
-            /*goToPearl(new Point2D() {
-                @Override
-                public double getX() {
-                    return info.getX();
-                }
-
-                @Override
-                public double getY() {
-                    return info.getY();
-                }
-
-                @Override
-                public void setLocation(double x, double y) {
-
-                }
-            }, new Point2D() {
-                @Override
-                public double getX() {
-                    return info.getX();
-                }
-
-                @Override
-                public double getY() {
-                    return info.getY();
-                }
-
-                @Override
-                public void setLocation(double x, double y) {
-
-                }
-            });*/
             if (tempTarget != null) {
                 if (pathProgression2 < tempTarget.size() - 1) {
                     goToPearl(new Point2D() {
@@ -199,7 +168,7 @@ public class Jasch2 extends AI {
                     });
                 }
             } else {
-                for (NodeJasch1 node : this.nodeGraph.getNodes()) {
+                for (Node_WIC node : this.nodeGraph.getNodes()) {
                     if (isBetween(node.getName().getX(), info.getX() - 4, info.getX() + 4) && node.getName().getY() > -10) {
                         tempTarget = new ArrayList<>(node.getShortestPath());
                         tempTarget.add(node);
@@ -221,7 +190,7 @@ public class Jasch2 extends AI {
             boolbool = true;
         }
 
-        if (info.getAir() < -info.getY()) {
+        if (info.getAir() < -info.getY() + 50) {
             airbool = false;
             if (boolbool) {
                 dijsktrastuffRepeat(); //zum nach oben schwimmen
@@ -242,7 +211,7 @@ public class Jasch2 extends AI {
             }
         } else { // setze neue ziel oberfläche
             if (tempTarget == null) {
-                for (NodeJasch1 node : this.nodeGraph.getNodes()) {
+                for (Node_WIC node : this.nodeGraph.getNodes()) {
                     if (isBetween(node.getName().getX(), info.getX() - 4, info.getX() + 4) && node.getName().getY() > -10) {
                         tempTarget = new ArrayList<>(node.getShortestPath());
                         tempTarget.add(node);
@@ -283,18 +252,18 @@ public class Jasch2 extends AI {
 
     public void assignPearlsToNodes() {
 
-        pearlNodes = new ArrayList<NodeJasch1>();
+        pearlNodes = new ArrayList<Node_WIC>();
 
         for (Point2D point2D : pearl) {
-            Map<Double, NodeJasch1> dis = new HashMap<>();
-            for (NodeJasch1 n : nodeGraph.getNodes()) {
+            Map<Double, Node_WIC> dis = new HashMap<>();
+            for (Node_WIC n : nodeGraph.getNodes()) {
                 dis.put(Math.sqrt(Math.pow(n.getName().getX() - point2D.getX(), 2) + Math.pow(n.getName().getY() - point2D.getY(), 2)), n);
             }
 
             ArrayList<Double> dListTemp = new ArrayList<>(dis.keySet());
             Collections.sort(dListTemp);
 
-            NodeJasch1 p = dis.get((Double) dListTemp.get(0));
+            Node_WIC p = dis.get((Double) dListTemp.get(0));
             if (!removedPearlNodes.contains(p)) {
                 pearlNodes.add(p);
             }
@@ -306,12 +275,12 @@ public class Jasch2 extends AI {
     public void dijsktrastuffStart() {
         long time = System.currentTimeMillis();
         for (Point2D point : freespace) {
-            NodeJasch1 n = new NodeJasch1(point);
+            Node_WIC n = new Node_WIC(point);
             nodeGraph.addNode(n);
         }
 
-        for (NodeJasch1 n : nodeGraph.getNodes()) {
-            for (NodeJasch1 neighbour : nodeGraph.getNodes()) {
+        for (Node_WIC n : nodeGraph.getNodes()) {
+            for (Node_WIC neighbour : nodeGraph.getNodes()) {
                 if (isBetween(neighbour.getName().getX(), n.getName().getX() - w, n.getName().getX() + w)
                         && isBetween(neighbour.getName().getY(), n.getName().getY() - w, n.getName().getY() + w)
                         && n.getName() != neighbour.getName()) {
@@ -332,16 +301,16 @@ public class Jasch2 extends AI {
         pathProgression2 = 1;
 
 
-        NodeJasch1 source = null;
-        for (NodeJasch1 n : nodeGraph.getNodes()) {
+        Node_WIC source = null;
+        for (Node_WIC n : nodeGraph.getNodes()) {
             if (n.getName().getX() == (Math.floorMod(info.getX(), w)) * w + (float) w / 2 && n.getName().getY() == (Math.floorMod(
                     info.getY(), w)) * w + (float) w / 2) {
                 source = n;
             }
         }
         if (source == null) {
-            Map<Double, NodeJasch1> dis = new HashMap<>();
-            for (NodeJasch1 n : nodeGraph.getNodes()) {
+            Map<Double, Node_WIC> dis = new HashMap<>();
+            for (Node_WIC n : nodeGraph.getNodes()) {
                 dis.put(Math.sqrt(Math.pow(n.getName().getX() - info.getX(), 2) + Math.pow(n.getName().getY() - info.getY(), 2)), n);
             }
 
@@ -351,18 +320,18 @@ public class Jasch2 extends AI {
             source = dis.get(dListTemp.get(0));
         }
 
-        for (NodeJasch1 n : nodeGraph.getNodes()) {
+        for (Node_WIC n : nodeGraph.getNodes()) {
             n.setShortestPath(new LinkedList<>());
             n.setDistance(Integer.MAX_VALUE);
         }
 
-        nodeGraph = DijkstraJasch1.calculateShortestPathFromSource(nodeGraph, source);
+        nodeGraph = Dijkstra_WIC.calculateShortestPathFromSource(nodeGraph, source);
 
         assignPearlsToNodes();
 
-        pearlNodes.sort(new Comparator<NodeJasch1>() {
+        pearlNodes.sort(new Comparator<Node_WIC>() {
             @Override
-            public int compare(NodeJasch1 o1, NodeJasch1 o2) {
+            public int compare(Node_WIC o1, Node_WIC o2) {
                 return Integer.compare(o1.getDistance(), o2.getDistance());
             }
         });
@@ -377,21 +346,21 @@ public class Jasch2 extends AI {
 }
 
 // Code taken from: https://www.baeldung.com/java-dijkstra
-class Node {
+class Node1_4_1 {
 
     private Point2D point;
 
-    private List<NodeJasch1> shortestPath = new LinkedList<>();
+    private List<Node_WIC> shortestPath = new LinkedList<>();
 
     private Integer distance = Integer.MAX_VALUE;
 
-    Map<NodeJasch1, Integer> adjacentNodes = new HashMap<>();
+    Map<Node_WIC, Integer> adjacentNodes = new HashMap<>();
 
-    public void addDestination(NodeJasch1 destination, int distance) {
+    public void addDestination(Node_WIC destination, int distance) {
         adjacentNodes.put(destination, distance);
     }
 
-    public Node(Point2D point) {
+    public Node1_4_1(Point2D point) {
         this.point = point;
     }
 
@@ -405,11 +374,11 @@ class Node {
         this.point = point;
     }
 
-    public List<NodeJasch1> getShortestPath() {
+    public List<Node_WIC> getShortestPath() {
         return shortestPath;
     }
 
-    public void setShortestPath(List<NodeJasch1> shortestPath) {
+    public void setShortestPath(List<Node_WIC> shortestPath) {
         this.shortestPath = shortestPath;
     }
 
@@ -421,45 +390,45 @@ class Node {
         this.distance = distance;
     }
 
-    public Map<NodeJasch1, Integer> getAdjacentNodes() {
+    public Map<Node_WIC, Integer> getAdjacentNodes() {
         return adjacentNodes;
     }
 
-    public void setAdjacentNodes(Map<NodeJasch1, Integer> adjacentNodes) {
+    public void setAdjacentNodes(Map<Node_WIC, Integer> adjacentNodes) {
         this.adjacentNodes = adjacentNodes;
     }
 }
 
-class Graph {
+class Graph1_4_1 {
 
-    private Set<NodeJasch1> nodes = new HashSet<>();
+    private Set<Node_WIC> nodes = new HashSet<>();
 
-    public void addNode(NodeJasch1 nodeA) {
+    public void addNode(Node_WIC nodeA) {
         nodes.add(nodeA);
     }
 
     // getters and setters
-    public Set<NodeJasch1> getNodes() {
+    public Set<Node_WIC> getNodes() {
         return nodes;
     }
 }
 
-class Dijkstra {
+class Dijkstra1_4_1 {
 
-    public static GraphJasch1 calculateShortestPathFromSource(GraphJasch1 graph, NodeJasch1 source) {
+    public static Graph_WIC calculateShortestPathFromSource(Graph_WIC graph, Node_WIC source) {
         source.setDistance(0);
 
-        Set<NodeJasch1> settledNodes = new HashSet<>();
-        Set<NodeJasch1> unsettledNodes = new HashSet<>();
+        Set<Node_WIC> settledNodes = new HashSet<>();
+        Set<Node_WIC> unsettledNodes = new HashSet<>();
 
         unsettledNodes.add(source);
 
         while (unsettledNodes.size() != 0) {
-            NodeJasch1 currentNode = getLowestDistanceNode(unsettledNodes);
+            Node_WIC currentNode = getLowestDistanceNode(unsettledNodes);
             unsettledNodes.remove(currentNode);
 
-            for (Map.Entry<NodeJasch1, Integer> adjacencyPair : currentNode.getAdjacentNodes().entrySet()) {
-                NodeJasch1 adjacentNode = adjacencyPair.getKey();
+            for (Map.Entry<Node_WIC, Integer> adjacencyPair : currentNode.getAdjacentNodes().entrySet()) {
+                Node_WIC adjacentNode = adjacencyPair.getKey();
                 Integer edgeWeight = adjacencyPair.getValue();
 
                 if (!settledNodes.contains(adjacentNode)) {
@@ -472,10 +441,10 @@ class Dijkstra {
         return graph;
     }
 
-    private static NodeJasch1 getLowestDistanceNode(Set<NodeJasch1> unsettledNodes) {
-        NodeJasch1 lowestDistanceNode = null;
+    private static Node_WIC getLowestDistanceNode(Set<Node_WIC> unsettledNodes) {
+        Node_WIC lowestDistanceNode = null;
         int lowestDistance = Integer.MAX_VALUE;
-        for (NodeJasch1 node : unsettledNodes) {
+        for (Node_WIC node : unsettledNodes) {
             int nodeDistance = node.getDistance();
             if (nodeDistance < lowestDistance) {
                 lowestDistance = nodeDistance;
@@ -485,11 +454,11 @@ class Dijkstra {
         return lowestDistanceNode;
     }
 
-    private static void calculateMinimumDistance(NodeJasch1 evaluationNode, Integer edgeWeigh, NodeJasch1 sourceNode) {
+    private static void calculateMinimumDistance(Node_WIC evaluationNode, Integer edgeWeigh, Node_WIC sourceNode) {
         Integer sourceDistance = sourceNode.getDistance();
         if (sourceDistance + edgeWeigh < evaluationNode.getDistance()) {
             evaluationNode.setDistance(sourceDistance + edgeWeigh);
-            LinkedList<NodeJasch1> shortestPath = new LinkedList<>(sourceNode.getShortestPath());
+            LinkedList<Node_WIC> shortestPath = new LinkedList<>(sourceNode.getShortestPath());
             shortestPath.add(sourceNode);
             evaluationNode.setShortestPath(shortestPath);
         }

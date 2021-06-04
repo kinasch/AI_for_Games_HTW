@@ -41,7 +41,7 @@ public class Crigne_V1_4 extends AI {
 
     @Override
     public String getName() {
-        return "Crigne_v1.4";
+        return "v1.4 (-25)";
     }
 
     @Override

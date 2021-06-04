@@ -41,7 +41,7 @@ public class Work_in_Cringness extends AI {
 
     @Override
     public String getName() {
-        return "Work_in_Crigne";
+        return "WIC (+25)";
     }
 
     @Override

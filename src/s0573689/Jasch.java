@@ -7,189 +7,491 @@ import lenz.htw.ai4g.ai.PlayerAction;
 
 import java.awt.*;
 import java.awt.geom.Path2D;
+
+import java.awt.geom.Point2D;
+import java.util.HashMap;
+
 import java.util.*;
 import java.util.List;
 
 public class Jasch extends AI {
 
-    private boolean tempRising = false;
-    private boolean sideways = false;
-    private float risingDirection;
+    float richtung;
+    int score = info.getScore();
+    int pathProgression = 0, pathProgression2 = 1;
+    int w = 10;
+    boolean airbool = true, boolbool = true, unknownbool = false;
 
-    private int riseMeter = 0;
-    private Point[] pearls;
-    private Path2D[] obstacles;
-    private int counter=0;
-
+    Point2D[] pearl = info.getScene().getPearl(); // ziele
+    Point2D[] currentPearl;
+    Path2D[] obstacles = info.getScene().getObstacles();
+    ArrayList<Point2D> freespace = new ArrayList<>();
+    GraphJasch1 nodeGraph = new GraphJasch1();
+    ArrayList<NodeJasch1> pearlNodes = new ArrayList<>();
+    ArrayList<NodeJasch1> removedPearlNodes = new ArrayList<>();
+    ArrayList<NodeJasch1> tempTarget;
 
     public Jasch(Info info) {
         super(info);
-        // one (only one) AI should enlist in the tournament at the end of the exercise
-//        enlistForTournament(573689);
-
-        // Register where the pearls are and store them in an Array.
-        pearls = pearlSort();
-
-        obstacles = info.getScene().getObstacles();
-
+        testing();
+        //enlistForTournament(573132, 573689);
+        dijsktrastuffStart();
+        dijsktrastuffRepeat();
     }
 
     @Override
     public String getName() {
-        return "Jasch";
+        return "Jasch 1 (-50)";
     }
 
     @Override
     public Color getColor() {
-        return Color.MAGENTA;
+        return Color.black;
     }
 
     @Override
     public PlayerAction update() {
 
-        // steering
-        float direction=0;
+        float speed = info.getMaxAcceleration(); // max speed
+        if (score < info.getScore()) {
+            removedPearlNodes.add(pearlNodes.remove(0));
+            dijsktrastuffRepeat();
+        }
 
-        if (tempRising) {
-            direction = rising(risingDirection);
+
+        if (info.getAir() == info.getMaxAir() && !isBetween(info.getX(), pearlNodes.get(0).getName().getX() - 4, pearlNodes.get(0).getName().getX() + 4)) {
+            richtung = pearlNodes.get(0).getName().getX() < info.getX() ? (float) Math.PI : 0;
+            return new DivingAction(speed, richtung);
+        }
+
+        if (info.getAir() == info.getMaxAir() && isBetween(info.getX(), pearlNodes.get(0).getName().getX() - 4, pearlNodes.get(0).getName().getX() + 4)) {
+            dijsktrastuffRepeat();
+            if (pearlNodes.size() < 3) {
+                unknownbool = true;
+            }
+        }
+
+        score = info.getScore();
+
+        Point2D notfall = null;
+        for (Point2D point : pearl) {
+            if (isBetween(point.getX(), pearlNodes.get(0).getName().getX() - 10, pearlNodes.get(0).getName().getX() + 10) && isBetween(point.getY(), pearlNodes.get(0).getName().getY() - 10, pearlNodes.get(0).getName().getY() + 10)) {
+                notfall = point;
+            }
+        }
+        if (notfall == null) {
+            notfall = pearlNodes.get(0).getName();
+        }
+
+        if (airbool || unknownbool) {
+            if (pathProgression < pearlNodes.get(0).getShortestPath().size() - 1) {
+                goToPearl(new Point2D() {
+                    @Override
+                    public double getX() {
+                        return info.getX();
+                    }
+
+                    @Override
+                    public double getY() {
+                        return info.getY();
+                    }
+
+                    @Override
+                    public void setLocation(double a, double b) {
+                    }
+                }, pearlNodes.get(0).getShortestPath().get(pathProgression).getName());
+            } else {
+                goToPearl(new Point2D() {
+                    @Override
+                    public double getX() {
+                        return info.getX();
+                    }
+
+                    @Override
+                    public double getY() {
+                        return info.getY();
+                    }
+
+                    @Override
+                    public void setLocation(double a, double b) {
+                    }
+                }, notfall);
+            }
         } else {
-
-            // Register where the obstacles are and store them in an Array.
-
-            /*
-                TODO: register obstacles
-            *   Idea: Go for the pearls, if there's an obstacle in the way, change direction vector to
-            *   orthographic of vector from diver to nearest point of the obstacle.
-            *   Whether this direction vector has a positive or negative y component is up to the
-            *   direction it was headed to before.
-            *   If the diver is closer to a shell than to the obstacle, go for the shell.
-            *
-            *   Alt: Avoid obstacle until d.x == p.x and d.y > p.y
-            */
-
-
-            /*
-             *  The next part is a calculation of the angle between the downwards vector and
-             *  the vector from the diver to the goal.
-             */
-            for (Path2D obstacle : obstacles) {
-                if (obstacle.contains(info.getX(), info.getY() - 2)) {
-                    tempRising = true;
-                    risingDirection = (float) Math.PI / 2;
-                    riseMeter = 0;
+            /*goToPearl(new Point2D() {
+                @Override
+                public double getX() {
+                    return info.getX();
                 }
-                if (obstacle.contains(info.getX() + 2, info.getY())) {
-                    tempRising = true;
-                    risingDirection = (float) Math.PI;
-                    sideways = true;
-                    riseMeter = 0;
+
+                @Override
+                public double getY() {
+                    return info.getY();
                 }
-                if (obstacle.contains(info.getX() - 2, info.getY())) {
-                    tempRising = true;
-                    risingDirection = (float) 0;
-                    sideways = true;
-                    riseMeter = 0;
+
+                @Override
+                public void setLocation(double x, double y) {
+
                 }
-                if (obstacle.contains(info.getX(), info.getY() + 2)) {
-                    tempRising = true;
-                    Random rdm = new Random();
-                    //int rdmInt = rdm.nextInt(100);
-                    // risingDirection = rdmInt % 2 == 0 ? (float) (-Math.PI) : (float) 0;
-                    risingDirection = (float)(-Math.PI);
-                    riseMeter = 0;
+            }, new Point2D() {
+                @Override
+                public double getX() {
+                    return info.getX();
+                }
+
+                @Override
+                public double getY() {
+                    return info.getY();
+                }
+
+                @Override
+                public void setLocation(double x, double y) {
+
+                }
+            });*/
+            if (tempTarget != null) {
+                if (pathProgression2 < tempTarget.size() - 1) {
+                    goToPearl(new Point2D() {
+                        @Override
+                        public double getX() {
+                            return info.getX();
+                        }
+
+                        @Override
+                        public double getY() {
+                            return info.getY();
+                        }
+
+                        @Override
+                        public void setLocation(double a, double b) {
+                        }
+                    }, tempTarget.get(pathProgression2).getName());
+                } else {
+                    goToPearl(new Point2D() {
+                        @Override
+                        public double getX() {
+                            return info.getX();
+                        }
+
+                        @Override
+                        public double getY() {
+                            return info.getY();
+                        }
+
+                        @Override
+                        public void setLocation(double a, double b) {
+                        }
+                    }, new Point2D() {
+                        @Override
+                        public double getX() {
+                            return info.getX();
+                        }
+
+                        @Override
+                        public double getY() {
+                            return 0;
+                        }
+
+                        @Override
+                        public void setLocation(double x, double y) {
+
+                        }
+                    });
+                }
+            } else {
+                for (NodeJasch1 node : this.nodeGraph.getNodes()) {
+                    if (isBetween(node.getName().getX(), info.getX() - 4, info.getX() + 4) && node.getName().getY() > -10) {
+                        tempTarget = new ArrayList<>(node.getShortestPath());
+                        tempTarget.add(node);
+                    }
                 }
             }
-
-            direction =  goToPearl(pearls);
-
-            // direction += fleeWeight* fleeFromObstacle(obstacles);
         }
 
-        return new DivingAction(info.getMaxAcceleration(), direction);
-    }
-
-    private float rising(float direction) {
-
-        // TODO: flee from here on?
-
-        // TODO: maybe use point between two pearls as flee point?
-
-        // TODO: FLEE - SEEK
-
-        if (riseMeter>=20 && !sideways) {
-            risingDirection = 0;
-        }
-        if (riseMeter>=15 && sideways){
-            risingDirection = (float)Math.PI/2;
-        }
-        if (riseMeter>=20 && sideways){
-            risingDirection = 0;
-        }
-
-        if(riseMeter > 32){
-            tempRising = false;
-        }
-        riseMeter++;
-        return direction;
+        return new DivingAction(speed, richtung); // Bewegung = Geschwindigkeit ∙ normalisierte Richtung
     }
 
 
-    /**
-     * This method calculates the angle at which the diver has to swim for the (theoretically)
-     * shortest way from his position to a pearl.
-     *
-     * @param pearls:  array of Points which stores the location of the pearls in the scene.
-     *
-     * @return float direction: angle at which the diver moves relational to the x-axis.
-     */
-    public float goToPearl(Point[] pearls) {
-        float direction = 0;
+    // Vielleicht können wir den Taucher an der Oberfläche schwimmen lassen
+    // bis er über der Perle ist und dann Wegesuche betreiben.
 
-        // Calculates the vector from the current position of the diver to the goal.
-        Point currentPosToGoal = new Point((int) (pearls[counter].getX() - info.getX()), (int) (pearls[counter].getY() - info.getY()));
-
-        /*// Calculates the absolute value of the vector between the current Position and the Goal.
-        float goalABS = (float) (Math.sqrt((Math.pow(currentPosToGoal.getX(), 2) + Math.pow(currentPosToGoal.getY(), 2))));
-
-        // Actual calculation of the angle.
-        direction = (float) ((Math.PI * 2) - (Math.acos(currentPosToGoal.getX() / goalABS)));
-*/
-        direction = (float)Math.atan2(currentPosToGoal.getY(), currentPosToGoal.getX());
-
-        // direction: goal.Y / abs(vector(goal))#
-        //System.out.println(counter+" || "+pearls[1].getX()+" "+pearls[counter].getY()+" | "+goalABS+" "+direction);
-
-        // Idea: Mark the collected pearls as complete with null.
-        // TODO: Collection detection
-        if (counter < info.getScore()
-                /*pearls[counter].getX() >= info.getX() - 6 && pearls[counter].getX() <= info.getX() + 6
-                && pearls[counter].getY() >= info.getY() - 6 && pearls[counter].getY() <= info.getY() + 6*/) {
-            counter = info.getScore();
-            direction = (float) Math.PI /2;
-            /*risingDirection = (float) Math.PI /2;
-            tempRising = true;
-            riseMeter = 0;*/
-
+    public void goToPearl(Point2D start, Point2D target) {
+        if (info.getAir() == info.getMaxAir()/*info.getY() == 0 && score !=0*/) {
+            airbool = true;
+            boolbool = true;
         }
-        return direction;
+
+        if (info.getAir() < -info.getY() - 50) {
+            airbool = false;
+            if (boolbool) {
+                dijsktrastuffRepeat(); //zum nach oben schwimmen
+            }
+            boolbool = false;
+        }
+
+        if (airbool || unknownbool) {
+            tempTarget = null;
+            Point newDirection = new Point((int) (target.getX() - start.getX()), (int) (target.getY() - start.getY()));
+            if (!target.equals(start)) {
+                richtung = (float) Math.atan2(newDirection.getY(), newDirection.getX());
+            }
+            int bound = 1;
+            if (isBetween(info.getX(), target.getX() - bound, target.getX() + bound) && isBetween(info.getY(), target.getY() - bound,
+                    target.getY() + bound)) {
+                pathProgression++;
+            }
+        } else { // setze neue ziel oberfläche
+            if (tempTarget == null) {
+                for (NodeJasch1 node : this.nodeGraph.getNodes()) {
+                    if (isBetween(node.getName().getX(), info.getX() - 4, info.getX() + 4) && node.getName().getY() > -10) {
+                        tempTarget = new ArrayList<>(node.getShortestPath());
+                        tempTarget.add(node);
+                    }
+                }
+            }
+            int bound = 1;
+            if (isBetween(info.getX(), target.getX() - bound, target.getX() + bound) && isBetween(info.getY(), target.getY() - bound,
+                    target.getY() + bound)) {
+                pathProgression2++;
+            }
+            Point newDirection = new Point((int) (target.getX() - start.getX()), (int) (target.getY() - start.getY()));
+            if (!target.equals(start)) {
+                richtung = (float) Math.atan2(newDirection.getY(), newDirection.getX());
+            }
+        }
+
     }
 
-    private Point[] pearlSort(){
-        Point[] pearls = info.getScene().getPearl();
-        // Map(Key: x value of pearl, Value: index of pearl)
-        HashMap<Integer,Integer> pMap = new HashMap<>();
-        for(int i=0;i<pearls.length;i++){
-            pMap.put((int)pearls[i].getX(),i);
+    public void testing() {
+        for (int y = 0; y < info.getScene().getHeight(); y += w) {
+            for (int x = 0; x < info.getScene().getWidth(); x += w) {
+                if (freiBier(x, -y - w)) {
+                    freespace.add(new Point(x + (int) ((float) w / 2), -y - (int) ((float) w / 2)));
+                }
+            }
         }
-        // List to sort the keys
-        List<Integer> pearlCoords = new ArrayList<>(pMap.keySet());
-        Collections.sort(pearlCoords);
-        Point[] pearlsTemp = pearls.clone();
-        for(int i=0;i<pearls.length;i++){
-            pearlsTemp[i] = pearls[pMap.get(pearlCoords.get(i))];
-        }
-        pearls = pearlsTemp;
-        return pearls;
     }
 
+    public boolean freiBier(int x, int y) {
+        for (Path2D obstacle : obstacles) {
+            if (obstacle.intersects(x, y, w, w)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void assignPearlsToNodes() {
+
+        pearlNodes = new ArrayList<NodeJasch1>();
+
+        for (Point2D point2D : pearl) {
+            Map<Double, NodeJasch1> dis = new HashMap<>();
+            for (NodeJasch1 n : nodeGraph.getNodes()) {
+                dis.put(Math.sqrt(Math.pow(n.getName().getX() - point2D.getX(), 2) + Math.pow(n.getName().getY() - point2D.getY(), 2)), n);
+            }
+
+            ArrayList<Double> dListTemp = new ArrayList<>(dis.keySet());
+            Collections.sort(dListTemp);
+
+            NodeJasch1 p = dis.get((Double) dListTemp.get(0));
+            if (!removedPearlNodes.contains(p)) {
+                pearlNodes.add(p);
+            }
+        }
+
+    }
+
+    // executed only once
+    public void dijsktrastuffStart() {
+        long time = System.currentTimeMillis();
+        for (Point2D point : freespace) {
+            NodeJasch1 n = new NodeJasch1(point);
+            nodeGraph.addNode(n);
+        }
+
+        for (NodeJasch1 n : nodeGraph.getNodes()) {
+            for (NodeJasch1 neighbour : nodeGraph.getNodes()) {
+                if (isBetween(neighbour.getName().getX(), n.getName().getX() - w, n.getName().getX() + w)
+                        && isBetween(neighbour.getName().getY(), n.getName().getY() - w, n.getName().getY() + w)
+                        && n.getName() != neighbour.getName()) {
+                    int distance = neighbour.getName().getX() == n.getName().getX() || neighbour.getName().getY() == n.getName().getY() ? w : (int) Math.floor(Math.sqrt(w * w + w * w));
+                    n.adjacentNodes.put(neighbour, distance);
+                }
+            }
+        }
+
+        assignPearlsToNodes();
+        ;
+    }
+
+    // Repeated dijsktra
+    public void dijsktrastuffRepeat() {
+        long time = System.currentTimeMillis();
+        pathProgression = 0;
+        pathProgression2 = 1;
+
+
+        NodeJasch1 source = null;
+        for (NodeJasch1 n : nodeGraph.getNodes()) {
+            if (n.getName().getX() == (Math.floorMod(info.getX(), w)) * w + (float) w / 2 && n.getName().getY() == (Math.floorMod(
+                    info.getY(), w)) * w + (float) w / 2) {
+                source = n;
+            }
+        }
+        if (source == null) {
+            Map<Double, NodeJasch1> dis = new HashMap<>();
+            for (NodeJasch1 n : nodeGraph.getNodes()) {
+                dis.put(Math.sqrt(Math.pow(n.getName().getX() - info.getX(), 2) + Math.pow(n.getName().getY() - info.getY(), 2)), n);
+            }
+
+            ArrayList<Double> dListTemp = new ArrayList<>(dis.keySet());
+            Collections.sort(dListTemp);
+
+            source = dis.get(dListTemp.get(0));
+        }
+
+        for (NodeJasch1 n : nodeGraph.getNodes()) {
+            n.setShortestPath(new LinkedList<>());
+            n.setDistance(Integer.MAX_VALUE);
+        }
+
+        nodeGraph = DijkstraJasch1.calculateShortestPathFromSource(nodeGraph, source);
+
+        assignPearlsToNodes();
+
+        pearlNodes.sort(new Comparator<NodeJasch1>() {
+            @Override
+            public int compare(NodeJasch1 o1, NodeJasch1 o2) {
+                return Integer.compare(o1.getDistance(), o2.getDistance());
+            }
+        });
+    }
+
+    public boolean isBetween(double valueToBeChecked, double lowerBound, double upperBound) {
+        if (valueToBeChecked <= upperBound && valueToBeChecked >= lowerBound) {
+            return true;
+        }
+        return false;
+    }
+}
+
+// Code taken from: https://www.baeldung.com/java-dijkstra
+class NodeJasch1 {
+
+    private Point2D point;
+
+    private List<NodeJasch1> shortestPath = new LinkedList<>();
+
+    private Integer distance = Integer.MAX_VALUE;
+
+    Map<NodeJasch1, Integer> adjacentNodes = new HashMap<>();
+
+    public void addDestination(NodeJasch1 destination, int distance) {
+        adjacentNodes.put(destination, distance);
+    }
+
+    public NodeJasch1(Point2D point) {
+        this.point = point;
+    }
+
+    // getters and setters
+
+    public Point2D getName() {
+        return point;
+    }
+
+    public void setName(Point2D point) {
+        this.point = point;
+    }
+
+    public List<NodeJasch1> getShortestPath() {
+        return shortestPath;
+    }
+
+    public void setShortestPath(List<NodeJasch1> shortestPath) {
+        this.shortestPath = shortestPath;
+    }
+
+    public Integer getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Integer distance) {
+        this.distance = distance;
+    }
+
+    public Map<NodeJasch1, Integer> getAdjacentNodes() {
+        return adjacentNodes;
+    }
+
+    public void setAdjacentNodes(Map<NodeJasch1, Integer> adjacentNodes) {
+        this.adjacentNodes = adjacentNodes;
+    }
+}
+
+class GraphJasch1 {
+
+    private Set<NodeJasch1> nodes = new HashSet<>();
+
+    public void addNode(NodeJasch1 nodeA) {
+        nodes.add(nodeA);
+    }
+
+    // getters and setters
+    public Set<NodeJasch1> getNodes() {
+        return nodes;
+    }
+}
+
+class DijkstraJasch1 {
+
+    public static GraphJasch1 calculateShortestPathFromSource(GraphJasch1 graph, NodeJasch1 source) {
+        source.setDistance(0);
+
+        Set<NodeJasch1> settledNodes = new HashSet<>();
+        Set<NodeJasch1> unsettledNodes = new HashSet<>();
+
+        unsettledNodes.add(source);
+
+        while (unsettledNodes.size() != 0) {
+            NodeJasch1 currentNode = getLowestDistanceNode(unsettledNodes);
+            unsettledNodes.remove(currentNode);
+
+            for (Map.Entry<NodeJasch1, Integer> adjacencyPair : currentNode.getAdjacentNodes().entrySet()) {
+                NodeJasch1 adjacentNode = adjacencyPair.getKey();
+                Integer edgeWeight = adjacencyPair.getValue();
+
+                if (!settledNodes.contains(adjacentNode)) {
+                    calculateMinimumDistance(adjacentNode, edgeWeight, currentNode);
+                    unsettledNodes.add(adjacentNode);
+                }
+            }
+            settledNodes.add(currentNode);
+        }
+        return graph;
+    }
+
+    private static NodeJasch1 getLowestDistanceNode(Set<NodeJasch1> unsettledNodes) {
+        NodeJasch1 lowestDistanceNode = null;
+        int lowestDistance = Integer.MAX_VALUE;
+        for (NodeJasch1 node : unsettledNodes) {
+            int nodeDistance = node.getDistance();
+            if (nodeDistance < lowestDistance) {
+                lowestDistance = nodeDistance;
+                lowestDistanceNode = node;
+            }
+        }
+        return lowestDistanceNode;
+    }
+
+    private static void calculateMinimumDistance(NodeJasch1 evaluationNode, Integer edgeWeigh, NodeJasch1 sourceNode) {
+        Integer sourceDistance = sourceNode.getDistance();
+        if (sourceDistance + edgeWeigh < evaluationNode.getDistance()) {
+            evaluationNode.setDistance(sourceDistance + edgeWeigh);
+            LinkedList<NodeJasch1> shortestPath = new LinkedList<>(sourceNode.getShortestPath());
+            shortestPath.add(sourceNode);
+            evaluationNode.setShortestPath(shortestPath);
+        }
+    }
 }
