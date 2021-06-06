@@ -26,22 +26,22 @@ public class Crigne_V1_1 extends AI {
     Point2D[] currentPearl;
     Path2D[] obstacles = info.getScene().getObstacles();
     ArrayList<Point2D> freespace = new ArrayList<>();
-    Graph_WIC nodeGraph = new Graph_WIC();
-    ArrayList<Node_WIC> pearlNodes = new ArrayList<>();
-    ArrayList<Node_WIC> removedPearlNodes = new ArrayList<>();
-    ArrayList<Node_WIC> tempTarget;
+    GraphV1 nodeGraph = new GraphV1();
+    ArrayList<NodeV1> pearlNodes = new ArrayList<>();
+    ArrayList<NodeV1> removedPearlNodes = new ArrayList<>();
+    ArrayList<NodeV1> tempTarget;
 
     public Crigne_V1_1(Info info) {
         super(info);
         testing();
-        //enlistForTournament(573132, 573689);
+        enlistForTournament(573132, 573689);
         dijsktrastuffStart();
         dijsktrastuffRepeat();
     }
 
     @Override
     public String getName() {
-        return "v1.1 (air/2&0)";
+        return "Crigne";
     }
 
     @Override
@@ -168,7 +168,7 @@ public class Crigne_V1_1 extends AI {
                     });
                 }
             } else {
-                for (Node_WIC node : this.nodeGraph.getNodes()) {
+                for (NodeV1 node : this.nodeGraph.getNodes()) {
                     if (isBetween(node.getName().getX(), info.getX() - 4, info.getX() + 4) && node.getName().getY() > -10) {
                         tempTarget = new ArrayList<>(node.getShortestPath());
                         tempTarget.add(node);
@@ -190,7 +190,7 @@ public class Crigne_V1_1 extends AI {
             boolbool = true;
         }
 
-        if (info.getAir() < info.getMaxAir()/2 && info.getAir() < -info.getY()) {
+        if (info.getAir() < info.getMaxAir()/2 + 5 && info.getAir() < -info.getY()) {
             airbool = false;
             if (boolbool) {
                 dijsktrastuffRepeat(); //zum nach oben schwimmen
@@ -211,7 +211,7 @@ public class Crigne_V1_1 extends AI {
             }
         } else { // setze neue ziel oberfläche
             if (tempTarget == null) {
-                for (Node_WIC node : this.nodeGraph.getNodes()) {
+                for (NodeV1 node : this.nodeGraph.getNodes()) {
                     if (isBetween(node.getName().getX(), info.getX() - 4, info.getX() + 4) && node.getName().getY() > -10) {
                         tempTarget = new ArrayList<>(node.getShortestPath());
                         tempTarget.add(node);
@@ -252,18 +252,18 @@ public class Crigne_V1_1 extends AI {
 
     public void assignPearlsToNodes() {
 
-        pearlNodes = new ArrayList<Node_WIC>();
+        pearlNodes = new ArrayList<NodeV1>();
 
         for (Point2D point2D : pearl) {
-            Map<Double, Node_WIC> dis = new HashMap<>();
-            for (Node_WIC n : nodeGraph.getNodes()) {
+            Map<Double, NodeV1> dis = new HashMap<>();
+            for (NodeV1 n : nodeGraph.getNodes()) {
                 dis.put(Math.sqrt(Math.pow(n.getName().getX() - point2D.getX(), 2) + Math.pow(n.getName().getY() - point2D.getY(), 2)), n);
             }
 
             ArrayList<Double> dListTemp = new ArrayList<>(dis.keySet());
             Collections.sort(dListTemp);
 
-            Node_WIC p = dis.get((Double) dListTemp.get(0));
+            NodeV1 p = dis.get((Double) dListTemp.get(0));
             if (!removedPearlNodes.contains(p)) {
                 pearlNodes.add(p);
             }
@@ -275,12 +275,12 @@ public class Crigne_V1_1 extends AI {
     public void dijsktrastuffStart() {
         long time = System.currentTimeMillis();
         for (Point2D point : freespace) {
-            Node_WIC n = new Node_WIC(point);
+            NodeV1 n = new NodeV1(point);
             nodeGraph.addNode(n);
         }
 
-        for (Node_WIC n : nodeGraph.getNodes()) {
-            for (Node_WIC neighbour : nodeGraph.getNodes()) {
+        for (NodeV1 n : nodeGraph.getNodes()) {
+            for (NodeV1 neighbour : nodeGraph.getNodes()) {
                 if (isBetween(neighbour.getName().getX(), n.getName().getX() - w, n.getName().getX() + w)
                         && isBetween(neighbour.getName().getY(), n.getName().getY() - w, n.getName().getY() + w)
                         && n.getName() != neighbour.getName()) {
@@ -301,16 +301,16 @@ public class Crigne_V1_1 extends AI {
         pathProgression2 = 1;
 
 
-        Node_WIC source = null;
-        for (Node_WIC n : nodeGraph.getNodes()) {
+        NodeV1 source = null;
+        for (NodeV1 n : nodeGraph.getNodes()) {
             if (n.getName().getX() == (Math.floorMod(info.getX(), w)) * w + (float) w / 2 && n.getName().getY() == (Math.floorMod(
                     info.getY(), w)) * w + (float) w / 2) {
                 source = n;
             }
         }
         if (source == null) {
-            Map<Double, Node_WIC> dis = new HashMap<>();
-            for (Node_WIC n : nodeGraph.getNodes()) {
+            Map<Double, NodeV1> dis = new HashMap<>();
+            for (NodeV1 n : nodeGraph.getNodes()) {
                 dis.put(Math.sqrt(Math.pow(n.getName().getX() - info.getX(), 2) + Math.pow(n.getName().getY() - info.getY(), 2)), n);
             }
 
@@ -320,18 +320,18 @@ public class Crigne_V1_1 extends AI {
             source = dis.get(dListTemp.get(0));
         }
 
-        for (Node_WIC n : nodeGraph.getNodes()) {
+        for (NodeV1 n : nodeGraph.getNodes()) {
             n.setShortestPath(new LinkedList<>());
             n.setDistance(Integer.MAX_VALUE);
         }
 
-        nodeGraph = Dijkstra_WIC.calculateShortestPathFromSource(nodeGraph, source);
+        nodeGraph = DijkstraV1.calculateShortestPathFromSource(nodeGraph, source);
 
         assignPearlsToNodes();
 
-        pearlNodes.sort(new Comparator<Node_WIC>() {
+        pearlNodes.sort(new Comparator<NodeV1>() {
             @Override
-            public int compare(Node_WIC o1, Node_WIC o2) {
+            public int compare(NodeV1 o1, NodeV1 o2) {
                 return Integer.compare(o1.getDistance(), o2.getDistance());
             }
         });
@@ -350,13 +350,13 @@ class NodeV1 {
 
     private Point2D point;
 
-    private List<Node_WIC> shortestPath = new LinkedList<>();
+    private List<NodeV1> shortestPath = new LinkedList<>();
 
     private Integer distance = Integer.MAX_VALUE;
 
-    Map<Node_WIC, Integer> adjacentNodes = new HashMap<>();
+    Map<NodeV1, Integer> adjacentNodes = new HashMap<>();
 
-    public void addDestination(Node_WIC destination, int distance) {
+    public void addDestination(NodeV1 destination, int distance) {
         adjacentNodes.put(destination, distance);
     }
 
@@ -374,11 +374,11 @@ class NodeV1 {
         this.point = point;
     }
 
-    public List<Node_WIC> getShortestPath() {
+    public List<NodeV1> getShortestPath() {
         return shortestPath;
     }
 
-    public void setShortestPath(List<Node_WIC> shortestPath) {
+    public void setShortestPath(List<NodeV1> shortestPath) {
         this.shortestPath = shortestPath;
     }
 
@@ -390,45 +390,45 @@ class NodeV1 {
         this.distance = distance;
     }
 
-    public Map<Node_WIC, Integer> getAdjacentNodes() {
+    public Map<NodeV1, Integer> getAdjacentNodes() {
         return adjacentNodes;
     }
 
-    public void setAdjacentNodes(Map<Node_WIC, Integer> adjacentNodes) {
+    public void setAdjacentNodes(Map<NodeV1, Integer> adjacentNodes) {
         this.adjacentNodes = adjacentNodes;
     }
 }
 
 class GraphV1 {
 
-    private Set<Node_WIC> nodes = new HashSet<>();
+    private Set<NodeV1> nodes = new HashSet<>();
 
-    public void addNode(Node_WIC nodeA) {
+    public void addNode(NodeV1 nodeA) {
         nodes.add(nodeA);
     }
 
     // getters and setters
-    public Set<Node_WIC> getNodes() {
+    public Set<NodeV1> getNodes() {
         return nodes;
     }
 }
 
 class DijkstraV1 {
 
-    public static Graph_WIC calculateShortestPathFromSource(Graph_WIC graph, Node_WIC source) {
+    public static GraphV1 calculateShortestPathFromSource(GraphV1 graph, NodeV1 source) {
         source.setDistance(0);
 
-        Set<Node_WIC> settledNodes = new HashSet<>();
-        Set<Node_WIC> unsettledNodes = new HashSet<>();
+        Set<NodeV1> settledNodes = new HashSet<>();
+        Set<NodeV1> unsettledNodes = new HashSet<>();
 
         unsettledNodes.add(source);
 
         while (unsettledNodes.size() != 0) {
-            Node_WIC currentNode = getLowestDistanceNode(unsettledNodes);
+            NodeV1 currentNode = getLowestDistanceNode(unsettledNodes);
             unsettledNodes.remove(currentNode);
 
-            for (Map.Entry<Node_WIC, Integer> adjacencyPair : currentNode.getAdjacentNodes().entrySet()) {
-                Node_WIC adjacentNode = adjacencyPair.getKey();
+            for (Map.Entry<NodeV1, Integer> adjacencyPair : currentNode.getAdjacentNodes().entrySet()) {
+                NodeV1 adjacentNode = adjacencyPair.getKey();
                 Integer edgeWeight = adjacencyPair.getValue();
 
                 if (!settledNodes.contains(adjacentNode)) {
@@ -441,10 +441,10 @@ class DijkstraV1 {
         return graph;
     }
 
-    private static Node_WIC getLowestDistanceNode(Set<Node_WIC> unsettledNodes) {
-        Node_WIC lowestDistanceNode = null;
+    private static NodeV1 getLowestDistanceNode(Set<NodeV1> unsettledNodes) {
+        NodeV1 lowestDistanceNode = null;
         int lowestDistance = Integer.MAX_VALUE;
-        for (Node_WIC node : unsettledNodes) {
+        for (NodeV1 node : unsettledNodes) {
             int nodeDistance = node.getDistance();
             if (nodeDistance < lowestDistance) {
                 lowestDistance = nodeDistance;
@@ -454,11 +454,11 @@ class DijkstraV1 {
         return lowestDistanceNode;
     }
 
-    private static void calculateMinimumDistance(Node_WIC evaluationNode, Integer edgeWeigh, Node_WIC sourceNode) {
+    private static void calculateMinimumDistance(NodeV1 evaluationNode, Integer edgeWeigh, NodeV1 sourceNode) {
         Integer sourceDistance = sourceNode.getDistance();
         if (sourceDistance + edgeWeigh < evaluationNode.getDistance()) {
             evaluationNode.setDistance(sourceDistance + edgeWeigh);
-            LinkedList<Node_WIC> shortestPath = new LinkedList<>(sourceNode.getShortestPath());
+            LinkedList<NodeV1> shortestPath = new LinkedList<>(sourceNode.getShortestPath());
             shortestPath.add(sourceNode);
             evaluationNode.setShortestPath(shortestPath);
         }
