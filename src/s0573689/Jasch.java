@@ -54,17 +54,17 @@ public class Jasch extends AI {
 
         float speed = info.getMaxAcceleration(); // max speed
         if (score < info.getScore()) {
-            removedPearlNodes.add(pearlNodes.remove(0));
+            removedPearlNodes.add(pearlNodes.remove(pearlNodes.size()-1));
             dijsktrastuffRepeat();
         }
 
 
-        if (info.getAir() == info.getMaxAir() && !isBetween(info.getX(), pearlNodes.get(0).getName().getX() - 4, pearlNodes.get(0).getName().getX() + 4)) {
-            richtung = pearlNodes.get(0).getName().getX() < info.getX() ? (float) Math.PI : 0;
+        if (info.getAir() == info.getMaxAir() && !isBetween(info.getX(), pearlNodes.get(pearlNodes.size()-1).getName().getX() - 4, pearlNodes.get(pearlNodes.size()-1).getName().getX() + 4)) {
+            richtung = pearlNodes.get(pearlNodes.size()-1).getName().getX() < info.getX() ? (float) Math.PI : 0;
             return new DivingAction(speed, richtung);
         }
 
-        if (info.getAir() == info.getMaxAir() && isBetween(info.getX(), pearlNodes.get(0).getName().getX() - 4, pearlNodes.get(0).getName().getX() + 4)) {
+        if (info.getAir() == info.getMaxAir() && isBetween(info.getX(), pearlNodes.get(pearlNodes.size()-1).getName().getX() - 4, pearlNodes.get(pearlNodes.size()-1).getName().getX() + 4)) {
             dijsktrastuffRepeat();
             if (pearlNodes.size() < 3) {
                 unknownbool = true;
@@ -75,16 +75,16 @@ public class Jasch extends AI {
 
         Point2D notfall = null;
         for (Point2D point : pearl) {
-            if (isBetween(point.getX(), pearlNodes.get(0).getName().getX() - 10, pearlNodes.get(0).getName().getX() + 10) && isBetween(point.getY(), pearlNodes.get(0).getName().getY() - 10, pearlNodes.get(0).getName().getY() + 10)) {
+            if (isBetween(point.getX(), pearlNodes.get(pearlNodes.size()-1).getName().getX() - 10, pearlNodes.get(pearlNodes.size()-1).getName().getX() + 10) && isBetween(point.getY(), pearlNodes.get(pearlNodes.size()-1).getName().getY() - 10, pearlNodes.get(pearlNodes.size()-1).getName().getY() + 10)) {
                 notfall = point;
             }
         }
         if (notfall == null) {
-            notfall = pearlNodes.get(0).getName();
+            notfall = pearlNodes.get(pearlNodes.size()-1).getName();
         }
 
         if (airbool || unknownbool) {
-            if (pathProgression < pearlNodes.get(0).getShortestPath().size() - 1) {
+            if (pathProgression < pearlNodes.get(pearlNodes.size()-1).getShortestPath().size() - 1) {
                 goToPearl(new Point2D() {
                     @Override
                     public double getX() {
@@ -99,7 +99,7 @@ public class Jasch extends AI {
                     @Override
                     public void setLocation(double a, double b) {
                     }
-                }, pearlNodes.get(0).getShortestPath().get(pathProgression).getName());
+                }, pearlNodes.get(pearlNodes.size()-1).getShortestPath().get(pathProgression).getName());
             } else {
                 goToPearl(new Point2D() {
                     @Override
@@ -221,7 +221,7 @@ public class Jasch extends AI {
             boolbool = true;
         }
 
-        if (info.getAir() < -info.getY() - 50) {
+        if (info.getAir() < info.getMaxAir()/2) {
             airbool = false;
             if (boolbool) {
                 dijsktrastuffRepeat(); //zum nach oben schwimmen
@@ -291,6 +291,8 @@ public class Jasch extends AI {
                 dis.put(Math.sqrt(Math.pow(n.getName().getX() - point2D.getX(), 2) + Math.pow(n.getName().getY() - point2D.getY(), 2)), n);
             }
 
+            // TODO: nach distanz und höhe sortieren und abhängig davon wechseln
+
             ArrayList<Double> dListTemp = new ArrayList<>(dis.keySet());
             Collections.sort(dListTemp);
 
@@ -299,7 +301,6 @@ public class Jasch extends AI {
                 pearlNodes.add(p);
             }
         }
-
     }
 
     // executed only once
@@ -322,7 +323,6 @@ public class Jasch extends AI {
         }
 
         assignPearlsToNodes();
-        ;
     }
 
     // Repeated dijsktra
@@ -363,7 +363,7 @@ public class Jasch extends AI {
         pearlNodes.sort(new Comparator<NodeJasch1>() {
             @Override
             public int compare(NodeJasch1 o1, NodeJasch1 o2) {
-                return Integer.compare(o1.getDistance(), o2.getDistance());
+                return Double.compare(o1.getName().getY(), o2.getName().getY());
             }
         });
     }
