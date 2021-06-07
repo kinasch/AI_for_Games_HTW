@@ -53,6 +53,7 @@ public class Crigne_V1_2 extends AI {
     public PlayerAction update() {
 
         float speed = info.getMaxAcceleration(); // max speed
+
         if (score < info.getScore()) {
             removedPearlNodes.add(pearlNodes.remove(0));
             dijsktrastuffRepeat();
