@@ -190,7 +190,7 @@ public class Cringe_V1_4_1 extends AI {
             boolbool = true;
         }
 
-        if (info.getAir() < -info.getY() + 50) {
+        if (info.getAir() < info.getMaxAir()/2 + 5 && info.getAir() < -info.getY()) {
             airbool = false;
             if (boolbool) {
                 dijsktrastuffRepeat(); //zum nach oben schwimmen

@@ -34,7 +34,7 @@ public class Work_in_Cringness extends AI {
     public Work_in_Cringness(Info info) {
         super(info);
         testing();
-        enlistForTournament(573132, 573689);
+        //enlistForTournament(573132, 573689);
         dijsktrastuffStart();
         dijsktrastuffRepeat();
     }
@@ -190,7 +190,7 @@ public class Work_in_Cringness extends AI {
             boolbool = true;
         }
 
-        if (info.getAir() < -info.getY() + 25) {
+        if (info.getAir() < info.getMaxAir()/2 + 5 && info.getAir() < -info.getY()) {
             airbool = false;
             if (boolbool) {
                 dijsktrastuffRepeat(); //zum nach oben schwimmen
