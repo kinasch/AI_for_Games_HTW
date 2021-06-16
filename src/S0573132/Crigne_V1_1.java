@@ -89,7 +89,6 @@ public class Crigne_V1_1 extends AI {
         }
 
         if (airbool || unknownbool) { //schwimmt zur perle
-
             if(info.getFortune() < 2){
                 goToPearl(new Point2D() {
                     @Override
@@ -105,7 +104,7 @@ public class Crigne_V1_1 extends AI {
                     @Override
                     public void setLocation(double a, double b) {
                     }
-                }, fortuneNodes.get(0).getShortestPath().get(pathProgression).getName());
+                }, fortuneNodes.get(info.getFortune()).getShortestPath().get(info.getFortune()).getName());
             } else if (pathProgression < pearlNodes.get(0).getShortestPath().size() - 1) {
                 goToPearl(new Point2D() {
                     @Override
