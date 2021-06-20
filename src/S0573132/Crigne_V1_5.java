@@ -73,7 +73,7 @@ public class Crigne_V1_5 extends AI {
         score = info.getScore(); //updates score
         fortune = info.getFortune(); //updates fortune
 
-        if(info.getAir() == info.getMaxAir()){
+        if(info.getAir() == info.getMaxAir() && updated){
             if(isBetween(info.getX(), pearlNodes.get(0).getName().getX() - 4, pearlNodes.get(0).getName().getX() + 4)){ //luft ignorieren bei letzen 2 perlen
                 dijsktrastuffRepeat();
                 if (pearlNodes.size() < 3) {
@@ -88,35 +88,12 @@ public class Crigne_V1_5 extends AI {
         Point2D notfall = createEmergencyPoint(pearlNodes, pearl);
         Point2D notfall2 = createEmergencyPoint(fortuneNodes, fortunes);
 
-        if(fortune == 2 && !updated){
-            goToPearl(new Point2D() {
-                @Override
-                public double getX() {
-                    return info.getX();
-                }
-
-                @Override
-                public double getY() {
-                    return info.getY();
-                }
-
-                @Override
-                public void setLocation(double a, double b) {
-                }
-            }, new Point2D() {
-                @Override
-                public double getX() {
-                    return info.getScene().getShopPosition();
-                }
-
-                @Override
-                public double getY() {
-                    return 0;
-                }
-
-                @Override
-                public void setLocation(double a, double b) {
-                }});
+        if(fortune >= 2 && !updated){
+            swimStraightUp();
+            if(info.getAir() == info.getMaxAir()){ //an der oberfläche schwimmen
+                richtung = info.getScene().getShopPosition() < info.getX() ? (float) Math.PI : 0;
+                return new DivingAction(speed, richtung);
+            }
         } else if (airbool || unknownbool) { //schwimmt zur perle
             if(info.getFortune() < 2 && pathProgression < fortuneNodes.get(0).getShortestPath().size() -1 && !updated){
                 goToPearl(new Point2D() {
@@ -184,68 +161,70 @@ public class Crigne_V1_5 extends AI {
                 }, notfall);
             }
         } else { //schwimmt zur oberfläche über dem taucher
-            if (tempTarget != null) {
-                if (pathProgression2 < tempTarget.size() - 1) {
-                    goToPearl(new Point2D() {
-                        @Override
-                        public double getX() {
-                            return info.getX();
-                        }
-
-                        @Override
-                        public double getY() {
-                            return info.getY();
-                        }
-
-                        @Override
-                        public void setLocation(double a, double b) {
-                        }
-                    }, tempTarget.get(pathProgression2).getName());
-                } else {
-                    goToPearl(new Point2D() {
-                        @Override
-                        public double getX() {
-                            return info.getX();
-                        }
-
-                        @Override
-                        public double getY() {
-                            return info.getY();
-                        }
-
-                        @Override
-                        public void setLocation(double a, double b) {
-                        }
-                    }, new Point2D() {
-                        @Override
-                        public double getX() {
-                            return info.getX();
-                        }
-
-                        @Override
-                        public double getY() {
-                            return 0;
-                        }
-
-                        @Override
-                        public void setLocation(double x, double y) {
-
-                        }
-                    });
-                }
-            } else {
-                for (NodeV5 node : this.nodeGraph.getNodes()) {
-                    if (isBetween(node.getName().getX(), info.getX() - 4, info.getX() + 4) && node.getName().getY() > -10) {
-                        tempTarget = new ArrayList<>(node.getShortestPath());
-                        tempTarget.add(node);
-                    }
-                }
-            }
+            swimStraightUp();
         }
-
         return new DivingAction(speed, richtung); // Bewegung = Geschwindigkeit ∙ normalisierte Richtung
     }
 
+    private void swimStraightUp() {
+        if (tempTarget != null) {
+            if (pathProgression2 < tempTarget.size() - 1) {
+                goToPearl(new Point2D() {
+                    @Override
+                    public double getX() {
+                        return info.getX();
+                    }
+
+                    @Override
+                    public double getY() {
+                        return info.getY();
+                    }
+
+                    @Override
+                    public void setLocation(double a, double b) {
+                    }
+                }, tempTarget.get(pathProgression2).getName());
+            } else {
+                goToPearl(new Point2D() {
+                    @Override
+                    public double getX() {
+                        return info.getX();
+                    }
+
+                    @Override
+                    public double getY() {
+                        return info.getY();
+                    }
+
+                    @Override
+                    public void setLocation(double a, double b) {
+                    }
+                }, new Point2D() {
+                    @Override
+                    public double getX() {
+                        return info.getX();
+                    }
+
+                    @Override
+                    public double getY() {
+                        return 0;
+                    }
+
+                    @Override
+                    public void setLocation(double x, double y) {
+
+                    }
+                });
+            }
+        } else {
+            for (NodeV5 node : this.nodeGraph.getNodes()) {
+                if (isBetween(node.getName().getX(), info.getX() - 4, info.getX() + 4) && node.getName().getY() > -10) {
+                    tempTarget = new ArrayList<>(node.getShortestPath());
+                    tempTarget.add(node);
+                }
+            }
+        }
+    }
     private Point2D createEmergencyPoint(ArrayList<NodeV5> listName, Point2D[] array) {
         Point2D notfall = null;
         for (Point2D point : array) {
@@ -266,12 +245,22 @@ public class Crigne_V1_5 extends AI {
             boolbool = true;
         }
 
-        if (info.getAir() < info.getMaxAir()/2 + 5 && info.getAir() < -(info.getY())) {
-            airbool = false;
-            if (boolbool) {
-                dijsktrastuffRepeat(); //zum nach oben schwimmen
+        if(!updated){
+            if (info.getAir() < info.getMaxAir()/2 + 25 && info.getAir() < -(info.getY() +15)) {
+                airbool = false;
+                if (boolbool) {
+                    dijsktrastuffRepeat(); //zum nach oben schwimmen
+                }
+                boolbool = false;
             }
-            boolbool = false;
+        }else{
+            if (info.getAir() < info.getMaxAir()/4 + 25 && info.getAir() < -(info.getY() +15)) {
+                airbool = false;
+                if (boolbool) {
+                    dijsktrastuffRepeat(); //zum nach oben schwimmen
+                }
+                boolbool = false;
+            }
         }
 
         if (airbool || unknownbool) {
