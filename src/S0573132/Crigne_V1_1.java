@@ -1,9 +1,6 @@
 package S0573132;
 
-import lenz.htw.ai4g.ai.AI;
-import lenz.htw.ai4g.ai.DivingAction;
-import lenz.htw.ai4g.ai.Info;
-import lenz.htw.ai4g.ai.PlayerAction;
+import lenz.htw.ai4g.ai.*;
 
 import java.awt.*;
 import java.awt.geom.Path2D;
@@ -18,9 +15,10 @@ public class Crigne_V1_1 extends AI {
 
     float richtung;
     int score = info.getScore();
+    int fortune = info.getFortune();
     int pathProgression = 0, pathProgression2 = 1;
     int nodeSize = 10;
-    boolean airbool = true, boolbool = true, unknownbool = false;
+    boolean airbool = true, boolbool = true, unknownbool = false, updated = false;
 
     Point2D[] pearl = info.getScene().getPearl(); // ziele
     Point2D[] fortunes = info.getScene().getRecyclingProducts(); // flaschen
@@ -37,11 +35,9 @@ public class Crigne_V1_1 extends AI {
         testing();
         enlistForTournament(573132, 573689);
         dijsktrastuffStart();
+        assignfortuneToNodes();
         dijsktrastuffRepeat();
 
-        System.out.println(Arrays.toString(info.getScene().getRecyclingProducts())); //vermutlich flaschen
-        info.getScene().getShopPosition(); //selbsterklärend als x wert
-        info.getFortune(); //flschen anzahl
     }
 
     @Override
@@ -57,6 +53,17 @@ public class Crigne_V1_1 extends AI {
     @Override
     public PlayerAction update() {
 
+            if (info.getFortune() >= 4 && info.getX() == info.getScene().getShopPosition() && info.getY() == 0) {
+                return new ShoppingAction(ShoppingItem.BALLOON_SET);
+
+            }
+            if (info.getFortune() >= 2 && info.getX() == info.getScene().getShopPosition() && info.getY() == 0) {
+                updated = true;
+                System.out.println("penis");
+                return new ShoppingAction(ShoppingItem.STREAMLINED_WIG);
+            }
+
+
         float speed = info.getMaxAcceleration(); // max speed
 
         //zählt eingesammelte perlen
@@ -64,7 +71,12 @@ public class Crigne_V1_1 extends AI {
             pearlNodes.remove(0);
             dijsktrastuffRepeat();
         }
+        if(fortune < info.getFortune()){
+            fortuneNodes.remove(0);
+            dijsktrastuffRepeat();
+        }
         score = info.getScore(); //updates score
+        fortune = info.getFortune(); //updates fortune
 
         if(info.getAir() == info.getMaxAir()){
             if(isBetween(info.getX(), pearlNodes.get(0).getName().getX() - 4, pearlNodes.get(0).getName().getX() + 4)){ //luft ignorieren bei letzen 2 perlen
@@ -78,18 +90,40 @@ public class Crigne_V1_1 extends AI {
             }
         }
 
-        Point2D notfall = null;
-        for (Point2D point : pearl) {
-            if (isBetween(point.getX(), pearlNodes.get(0).getName().getX() - 10, pearlNodes.get(0).getName().getX() + 10) && isBetween(point.getY(), pearlNodes.get(0).getName().getY() - 10, pearlNodes.get(0).getName().getY() + 10)) {
-                notfall = point;
-            }
-        }
-        if (notfall == null) {
-            notfall = pearlNodes.get(0).getName();
-        }
+        Point2D notfall = createEmergencyPoint(pearlNodes, pearl);
+        Point2D notfall2 = createEmergencyPoint(fortuneNodes, fortunes);
 
-        if (airbool || unknownbool) { //schwimmt zur perle
-            if(info.getFortune() < 2){
+        if(fortune == 4 && !updated){
+            goToPearl(new Point2D() {
+                @Override
+                public double getX() {
+                    return info.getX();
+                }
+
+                @Override
+                public double getY() {
+                    return info.getY();
+                }
+
+                @Override
+                public void setLocation(double a, double b) {
+                }
+            }, new Point2D() {
+                @Override
+                public double getX() {
+                    return info.getScene().getShopPosition();
+                }
+
+                @Override
+                public double getY() {
+                    return 0;
+                }
+
+                @Override
+                public void setLocation(double a, double b) {
+                }});
+        } else if (airbool || unknownbool) { //schwimmt zur perle
+            if(info.getFortune() < 4 && pathProgression < fortuneNodes.get(0).getShortestPath().size() -1 && !updated){
                 goToPearl(new Point2D() {
                     @Override
                     public double getX() {
@@ -104,7 +138,23 @@ public class Crigne_V1_1 extends AI {
                     @Override
                     public void setLocation(double a, double b) {
                     }
-                }, fortuneNodes.get(info.getFortune()).getShortestPath().get(info.getFortune()).getName());
+                }, fortuneNodes.get(0).getShortestPath().get(pathProgression).getName());
+            }else if(info.getFortune() < 4 && pathProgression >= fortuneNodes.get(0).getShortestPath().size() -1 && !updated){
+                goToPearl(new Point2D() {
+                    @Override
+                    public double getX() {
+                        return info.getX();
+                    }
+
+                    @Override
+                    public double getY() {
+                        return info.getY();
+                    }
+
+                    @Override
+                    public void setLocation(double a, double b) {
+                    }
+                }, notfall2);
             } else if (pathProgression < pearlNodes.get(0).getShortestPath().size() - 1) {
                 goToPearl(new Point2D() {
                     @Override
@@ -201,6 +251,19 @@ public class Crigne_V1_1 extends AI {
         return new DivingAction(speed, richtung); // Bewegung = Geschwindigkeit ∙ normalisierte Richtung
     }
 
+    private Point2D createEmergencyPoint(ArrayList<NodeV1> listName, Point2D[] array) {
+        Point2D notfall = null;
+        for (Point2D point : array) {
+            if (isBetween(point.getX(), listName.get(0).getName().getX() - 10, listName.get(0).getName().getX() + 10) && isBetween(point.getY(), listName.get(0).getName().getY() - 10, listName.get(0).getName().getY() + 10)) {
+                notfall = point;
+            }
+        }
+        if (notfall == null) {
+            notfall = listName.get(0).getName();
+        }
+        return notfall;
+    }
+
 
     public void goToPearl(Point2D start, Point2D target) {
         if (info.getAir() == info.getMaxAir()/*info.getY() == 0 && score !=0*/) {
@@ -208,7 +271,7 @@ public class Crigne_V1_1 extends AI {
             boolbool = true;
         }
 
-        if (info.getAir() < info.getMaxAir()/2 + 5 && info.getAir() < -info.getY()) {
+        if (info.getAir() < info.getMaxAir()/2 + 5 && info.getAir() < -(info.getY())) {
             airbool = false;
             if (boolbool) {
                 dijsktrastuffRepeat(); //zum nach oben schwimmen
@@ -222,7 +285,7 @@ public class Crigne_V1_1 extends AI {
             if (!target.equals(start)) {
                 richtung = (float) Math.atan2(newDirection.getY(), newDirection.getX());
             }
-            int bound = 1;
+            int bound = 2;
             if (isBetween(info.getX(), target.getX() - bound, target.getX() + bound) && isBetween(info.getY(), target.getY() - bound,
                     target.getY() + bound)) {
                 pathProgression++;
@@ -236,7 +299,7 @@ public class Crigne_V1_1 extends AI {
                     }
                 }
             }
-            int bound = 1;
+            int bound = 2;
             if (isBetween(info.getX(), target.getX() - bound, target.getX() + bound) && isBetween(info.getY(), target.getY() - bound,
                     target.getY() + bound)) {
                 pathProgression2++;
@@ -335,6 +398,12 @@ public class Crigne_V1_1 extends AI {
         nodeGraph = DijkstraV1.calculateShortestPathFromSource(nodeGraph, source);
 
         pearlNodes.sort(new Comparator<NodeV1>() {
+            @Override
+            public int compare(NodeV1 o1, NodeV1 o2) {
+                return Integer.compare(o1.getDistance(), o2.getDistance());
+            }
+        });
+        fortuneNodes.sort(new Comparator<NodeV1>() {
             @Override
             public int compare(NodeV1 o1, NodeV1 o2) {
                 return Integer.compare(o1.getDistance(), o2.getDistance());
