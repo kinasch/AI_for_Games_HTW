@@ -279,7 +279,7 @@ public class Crigne_V1_1 extends AI {
         }
 
         if(!updated){
-            if (info.getAir() < info.getMaxAir()/2 + 25 && info.getAir() < -(info.getY() +15)) {
+            if (info.getAir() < info.getMaxAir()/2 +10 && info.getAir() < -(info.getY() +10)) {
                 airbool = false;
                 if (boolbool) {
                     dijsktrastuffRepeat(); //zum nach oben schwimmen
@@ -287,7 +287,7 @@ public class Crigne_V1_1 extends AI {
                 boolbool = false;
             }
         }else{
-            if (info.getAir() < info.getMaxAir()/4 + 25 && info.getAir() < -(info.getY() +15)) {
+            if (info.getAir() < info.getMaxAir()/4 +10 && info.getAir() < -(info.getY() +10)) {
                 airbool = false;
                 if (boolbool) {
                     dijsktrastuffRepeat(); //zum nach oben schwimmen
