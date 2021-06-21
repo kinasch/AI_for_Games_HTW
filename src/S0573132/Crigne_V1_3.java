@@ -70,7 +70,7 @@ public class Crigne_V1_3 extends AI {
             pearlNodes.remove(0);
             dijsktrastuffRepeat();
         }
-        if(fortune < info.getFortune()){
+        if(fortune < info.getFortune()&& !updated){
             fortuneNodes.remove(0);
             dijsktrastuffRepeat();
         }
@@ -171,6 +171,7 @@ public class Crigne_V1_3 extends AI {
     }
 
     private void swimStraightUp() {
+        airbool = false;
         if (tempTarget != null) {
             if (pathProgression2 < tempTarget.size() - 1) {
                 goToPearl(new Point2D() {
@@ -279,14 +280,6 @@ public class Crigne_V1_3 extends AI {
                 pathProgression++;
             }
         } else { // setze neue ziel oberfläche
-            if (tempTarget == null) {
-                for (NodeV3 node : this.nodeGraph.getNodes()) {
-                    if (isBetween(node.getName().getX(), info.getX() - 4, info.getX() + 4) && node.getName().getY() > -10) {
-                        tempTarget = new ArrayList<>(node.getShortestPath());
-                        tempTarget.add(node);
-                    }
-                }
-            }
             int bound = 2;
             if (isBetween(info.getX(), target.getX() - bound, target.getX() + bound) && isBetween(info.getY(), target.getY() - bound,
                     target.getY() + bound)) {

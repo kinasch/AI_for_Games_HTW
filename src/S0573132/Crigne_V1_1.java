@@ -69,7 +69,7 @@ public class Crigne_V1_1 extends AI {
             pearlNodes.remove(0);
             dijsktrastuffRepeat();
         }
-        if(fortune < info.getFortune()){
+        if(fortune < info.getFortune() && !updated){
             fortuneNodes.remove(0);
             dijsktrastuffRepeat();
         }
@@ -92,40 +92,11 @@ public class Crigne_V1_1 extends AI {
         Point2D notfall2 = createEmergencyPoint(fortuneNodes, fortunes);
 
         if(fortune >= 4 && !updated){
-//            goToPearl(new Point2D() {
-//                @Override
-//                public double getX() {
-//                    return info.getX();
-//                }
-//
-//                @Override
-//                public double getY() {
-//                    return info.getY();
-//                }
-//
-//                @Override
-//                public void setLocation(double a, double b) {
-//                }
-//            }, new Point2D() {
-//                @Override
-//                public double getX() {
-//                    return info.getScene().getShopPosition();
-//                }
-//
-//                @Override
-//                public double getY() {
-//                    return 0;
-//                }
-//
-//                @Override
-//                public void setLocation(double a, double b) {
-//                }});
             swimStraightUp();
             if(info.getAir() == info.getMaxAir()){ //an der oberfläche schwimmen
                     richtung = info.getScene().getShopPosition() < info.getX() ? (float) Math.PI : 0;
                     return new DivingAction(speed, richtung);
             }
-
         } else if (airbool || unknownbool) { //schwimmt zur perle
             if(info.getFortune() < 4 && pathProgression < fortuneNodes.get(0).getShortestPath().size() -1 && !updated){
                 goToPearl(new Point2D() {
@@ -199,6 +170,7 @@ public class Crigne_V1_1 extends AI {
     }
 
     private void swimStraightUp() {
+        airbool = false;
         if (tempTarget != null) {
             if (pathProgression2 < tempTarget.size() - 1) {
                 goToPearl(new Point2D() {
@@ -309,14 +281,6 @@ public class Crigne_V1_1 extends AI {
                 pathProgression++;
             }
         } else { // setze neue ziel oberfläche
-            if (tempTarget == null) {
-                for (NodeV1 node : this.nodeGraph.getNodes()) {
-                    if (isBetween(node.getName().getX(), info.getX() - 4, info.getX() + 4) && node.getName().getY() > -10) {
-                        tempTarget = new ArrayList<>(node.getShortestPath());
-                        tempTarget.add(node);
-                    }
-                }
-            }
             int bound = 2;
             if (isBetween(info.getX(), target.getX() - bound, target.getX() + bound) && isBetween(info.getY(), target.getY() - bound,
                     target.getY() + bound)) {
