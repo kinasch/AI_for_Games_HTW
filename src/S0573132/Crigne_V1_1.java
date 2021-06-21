@@ -251,7 +251,7 @@ public class Crigne_V1_1 extends AI {
         }
 
         if(!updated){
-            if (info.getAir() < info.getMaxAir()/2 +20 && info.getAir() < -info.getY()) {
+            if (info.getAir() < info.getMaxAir()*4/7 +20 && info.getAir() < -info.getY()) {
                 airbool = false;
                 if (boolbool) {
                     dijsktrastuffRepeat(); //zum nach oben schwimmen

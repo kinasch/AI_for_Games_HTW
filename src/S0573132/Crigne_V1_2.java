@@ -33,7 +33,7 @@ public class Crigne_V1_2 extends AI {
     public Crigne_V1_2(Info info) {
         super(info);
         testing();
-        //enlistForTournament(573132, 573689);
+        enlistForTournament(573132, 573689);
         dijsktrastuffStart();
         assignfortuneToNodes();
         dijsktrastuffRepeat();
@@ -42,7 +42,7 @@ public class Crigne_V1_2 extends AI {
 
     @Override
     public String getName() {
-        return "air+spd+bnd3";
+        return "Crigne_Mage";
     }
 
     @Override
@@ -251,7 +251,7 @@ public class Crigne_V1_2 extends AI {
         }
 
         if(!updated){
-            if (info.getAir() < info.getMaxAir()/2 + 20 && info.getAir() < -info.getY()) {
+            if (info.getAir() < info.getMaxAir()*4/7 + 20 && info.getAir() < (-info.getY())+10) {
                 airbool = false;
                 if (boolbool) {
                     dijsktrastuffRepeat(); //zum nach oben schwimmen
@@ -259,7 +259,7 @@ public class Crigne_V1_2 extends AI {
                 boolbool = false;
             }
         }else{
-            if (info.getAir() < info.getMaxAir()/4 + 20 && info.getAir() < -info.getY()) {
+            if (info.getAir() < info.getMaxAir()*2/7 + 20 && info.getAir() < (-info.getY())+10) {
                 airbool = false;
                 if (boolbool) {
                     dijsktrastuffRepeat(); //zum nach oben schwimmen
@@ -274,13 +274,13 @@ public class Crigne_V1_2 extends AI {
             if (!target.equals(start)) {
                 richtung = (float) Math.atan2(newDirection.getY(), newDirection.getX());
             }
-            int bound = 3;
+            int bound = 2;
             if (isBetween(info.getX(), target.getX() - bound, target.getX() + bound) && isBetween(info.getY(), target.getY() - bound,
                     target.getY() + bound)) {
                 pathProgression++;
             }
         } else { // setze neue ziel oberfläche
-            int bound = 3;
+            int bound = 2;
             if (isBetween(info.getX(), target.getX() - bound, target.getX() + bound) && isBetween(info.getY(), target.getY() - bound,
                     target.getY() + bound)) {
                 pathProgression2++;
