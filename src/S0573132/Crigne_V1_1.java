@@ -53,11 +53,11 @@ public class Crigne_V1_1 extends AI {
     @Override
     public PlayerAction update() {
 
-            if (info.getFortune() >= 4 && info.getX() == info.getScene().getShopPosition() && info.getY() == 0) {
+            if (info.getFortune() >= 4 && info.getX() == info.getScene().getShopPosition() && info.getY() == 0 && !updated) {
                 return new ShoppingAction(ShoppingItem.BALLOON_SET);
 
             }
-            if (info.getFortune() >= 2 && info.getX() == info.getScene().getShopPosition() && info.getY() == 0) {
+            if (info.getFortune() >= 2 && info.getX() == info.getScene().getShopPosition() && info.getY() == 0 && !updated) {
                 updated = true;
                 return new ShoppingAction(ShoppingItem.STREAMLINED_WIG);
             }
@@ -251,7 +251,7 @@ public class Crigne_V1_1 extends AI {
         }
 
         if(!updated){
-            if (info.getAir() < info.getMaxAir()/2 +10 && info.getAir() < -(info.getY() +10)) {
+            if (info.getAir() < info.getMaxAir()/2 +20 && info.getAir() < -info.getY()) {
                 airbool = false;
                 if (boolbool) {
                     dijsktrastuffRepeat(); //zum nach oben schwimmen
@@ -259,7 +259,7 @@ public class Crigne_V1_1 extends AI {
                 boolbool = false;
             }
         }else{
-            if (info.getAir() < info.getMaxAir()/4 +10 && info.getAir() < -(info.getY() +10)) {
+            if (info.getAir() < info.getMaxAir()/4 +20 && info.getAir() < -info.getY()) {
                 airbool = false;
                 if (boolbool) {
                     dijsktrastuffRepeat(); //zum nach oben schwimmen

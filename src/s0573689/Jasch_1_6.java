@@ -53,7 +53,7 @@ public class Jasch_1_6 extends AI {
     @Override
     public PlayerAction update() {
 
-        if (info.getFortune() >= 2 && info.getX() == info.getScene().getShopPosition() && info.getY() == 0) {
+        if (info.getFortune() >= 2 && info.getX() == info.getScene().getShopPosition() && info.getY() == 0 && !updated) {
             updated = true;
             return new ShoppingAction(ShoppingItem.STREAMLINED_WIG);
         }
