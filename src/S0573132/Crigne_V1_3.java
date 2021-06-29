@@ -42,7 +42,7 @@ public class Crigne_V1_3 extends AI {
 
     @Override
     public String getName() {
-        return "flip+cut";
+        return "spd+cut";
     }
 
     @Override
@@ -54,7 +54,7 @@ public class Crigne_V1_3 extends AI {
     public PlayerAction update() {
 
         if (info.getFortune() >= 4 && info.getX() == info.getScene().getShopPosition() && info.getY() == 0 && !updated) {
-            return new ShoppingAction(ShoppingItem.MOTORIZED_FLIPPERS);
+            return new ShoppingAction(ShoppingItem.STREAMLINED_WIG);
 
         }
         if (info.getFortune() >= 2 && info.getX() == info.getScene().getShopPosition() && info.getY() == 0 && !updated) {

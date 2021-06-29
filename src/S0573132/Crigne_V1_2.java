@@ -42,7 +42,7 @@ public class Crigne_V1_2 extends AI {
 
     @Override
     public String getName() {
-        return "Crigne_Mage";
+        return "air+cut";
     }
 
     @Override
@@ -59,7 +59,7 @@ public class Crigne_V1_2 extends AI {
         }
         if (info.getFortune() >= 2 && info.getX() == info.getScene().getShopPosition() && info.getY() == 0 && !updated) {
             updated = true;
-            return new ShoppingAction(ShoppingItem.STREAMLINED_WIG);
+            return new ShoppingAction(ShoppingItem.CORNER_CUTTER);
         }
 
 
