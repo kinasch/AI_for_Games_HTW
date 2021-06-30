@@ -18,7 +18,7 @@ public class Crigne_V1_4 extends AI {
     int fortune = info.getFortune();
     int pathProgression = 0, pathProgression2 = 1;
     int nodeSize = 10;
-    boolean airbool = true, boolbool = true, unknownbool = false, updated = false;
+    boolean airbool = true, boolbool = true, unknownbool = false, updated = false, cutUpdate = false, airupdate = false;
 
     Point2D[] pearl = info.getScene().getPearl(); // ziele
     Point2D[] fortunes = info.getScene().getRecyclingProducts(); // flaschen
@@ -42,7 +42,7 @@ public class Crigne_V1_4 extends AI {
 
     @Override
     public String getName() {
-        return "air+spd+cut";
+        return "cut+(airspd)";
     }
 
     @Override
@@ -52,15 +52,17 @@ public class Crigne_V1_4 extends AI {
 
     @Override
     public PlayerAction update() {
-        if (info.getFortune() >= 6 && info.getX() == info.getScene().getShopPosition() && info.getY() == 0 && !updated) {
-            return new ShoppingAction(ShoppingItem.BALLOON_SET);
+        if (info.getFortune() >= 2 && info.getX() == info.getScene().getShopPosition() && info.getY() == 0 && !updated && !cutUpdate) {
+            cutUpdate = true;
+            return new ShoppingAction(ShoppingItem.CORNER_CUTTER);
         }
-        if (info.getFortune() >= 4 && info.getX() == info.getScene().getShopPosition() && info.getY() == 0 && !updated) {
+        if (info.getFortune() >= 4 && info.getX() == info.getScene().getShopPosition() && info.getY() == 0 && !updated && cutUpdate) {
             return new ShoppingAction(ShoppingItem.STREAMLINED_WIG);
         }
-        if (info.getFortune() >= 2 && info.getX() == info.getScene().getShopPosition() && info.getY() == 0 && !updated) {
+        if (info.getFortune() >= 2 && info.getX() == info.getScene().getShopPosition() && info.getY() == 0 && !updated && cutUpdate) {
             updated = true;
-            return new ShoppingAction(ShoppingItem.CORNER_CUTTER);
+            airupdate = true;
+            return new ShoppingAction(ShoppingItem.BALLOON_SET);
         }
 
 
@@ -93,7 +95,13 @@ public class Crigne_V1_4 extends AI {
         Point2D notfall = createEmergencyPoint(pearlNodes, pearl);
         Point2D notfall2 = createEmergencyPoint(fortuneNodes, fortunes);
 
-        if(fortune >= 6 && !updated){
+        if(fortune >= 2 && !cutUpdate){
+            swimStraightUp();
+            if(info.getAir() == info.getMaxAir()){ //an der oberfläche schwimmen
+                richtung = info.getScene().getShopPosition() < info.getX() ? (float) Math.PI : 0;
+                return new DivingAction(speed, richtung);
+            }
+        } else if(fortune >= 4 && !updated && cutUpdate){
             swimStraightUp();
             if(info.getAir() == info.getMaxAir()){ //an der oberfläche schwimmen
                 richtung = info.getScene().getShopPosition() < info.getX() ? (float) Math.PI : 0;
@@ -252,15 +260,15 @@ public class Crigne_V1_4 extends AI {
         }
 
         if(!updated){
-            if (info.getAir() < info.getMaxAir()/2 + 25 && info.getAir() < -(info.getY() +15)) {
+            if (info.getAir() < info.getMaxAir()/2 + 50 && info.getAir() < -(info.getY() -40)) {
                 airbool = false;
                 if (boolbool) {
                     dijsktrastuffRepeat(); //zum nach oben schwimmen
                 }
                 boolbool = false;
             }
-        }else{
-            if (info.getAir() < info.getMaxAir()/4 + 25 && info.getAir() < -(info.getY() +15)) {
+        }else if(updated && airupdate){
+            if (info.getAir() < info.getMaxAir()/4 + 50 && info.getAir() < -(info.getY() -40)) {
                 airbool = false;
                 if (boolbool) {
                     dijsktrastuffRepeat(); //zum nach oben schwimmen

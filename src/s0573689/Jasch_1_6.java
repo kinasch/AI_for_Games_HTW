@@ -18,7 +18,7 @@ public class Jasch_1_6 extends AI {
     int fortune = info.getFortune();
     int pathProgression = 0, pathProgression2 = 1;
     int nodeSize = 10;
-    boolean airbool = true, boolbool = true, unknownbool = false, updated = false;
+    boolean airbool = true, boolbool = true, unknownbool = false, updated = false, airupdate = false;
 
     Point2D[] pearl = info.getScene().getPearl(); // ziele
     Point2D[] fortunes = info.getScene().getRecyclingProducts(); // flaschen
@@ -247,15 +247,16 @@ public class Jasch_1_6 extends AI {
         }
 
         if(!updated){
-            if (info.getAir() < info.getMaxAir()/2 + 25 && info.getAir() < -(info.getY() +15)) {
+            if (info.getAir() < info.getMaxAir()/2 + 50 && info.getAir() < -(info.getY() -40)) {
                 airbool = false;
                 if (boolbool) {
                     dijsktrastuffRepeat(); //zum nach oben schwimmen
                 }
                 boolbool = false;
             }
-        }else{
-            if (info.getAir() < info.getMaxAir()/4 + 25 && info.getAir() < -(info.getY() +15)) {
+        }
+        else{
+            if (info.getAir() < info.getMaxAir()/2 + 50 && info.getAir() < -(info.getY() -40)) {
                 airbool = false;
                 if (boolbool) {
                     dijsktrastuffRepeat(); //zum nach oben schwimmen
