@@ -60,7 +60,7 @@ public class Crigne_V1_5 extends AI {
             cutUpdate = true;
             return new ShoppingAction(ShoppingItem.CORNER_CUTTER);
         }
-        if (info.getFortune() >= 2 && info.getX() == info.getScene().getShopPosition() && info.getY() == 0 && !updated && cutUpdate) {
+        if (info.getFortune() >= 2 && isBetween(info.getX(), info.getScene().getShopPosition()-1, info.getScene().getShopPosition()+1) && info.getY() == 0 && !updated && cutUpdate) {
             airupdate = true;
             updated = true;
             return new ShoppingAction(ShoppingItem.BALLOON_SET);
