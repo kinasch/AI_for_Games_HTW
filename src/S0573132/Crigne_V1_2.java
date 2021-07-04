@@ -18,7 +18,7 @@ public class Crigne_V1_2 extends AI {
     int fortune = info.getFortune();
     int pathProgression = 0, pathProgression2 = 1;
     int nodeSize = 10;
-    boolean airbool = true, boolbool = true, unknownbool = false, updated = false, airupdate = false;
+    boolean airbool = true, boolbool = true, unknownbool = false, updated = false, airupdate = false, cutUpdate = false;
 
     Point2D[] pearl = info.getScene().getPearl(); // ziele
     Point2D[] fortunes = info.getScene().getRecyclingProducts(); // flaschen
@@ -42,7 +42,7 @@ public class Crigne_V1_2 extends AI {
 
     @Override
     public String getName() {
-        return "air+cut";
+        return "(aircut)+spd2";
     }
 
     @Override
@@ -53,13 +53,17 @@ public class Crigne_V1_2 extends AI {
     @Override
     public PlayerAction update() {
 
-        if (info.getFortune() >= 4 && info.getX() == info.getScene().getShopPosition() && info.getY() == 0 && !updated) {
+        if (info.getFortune() >= 4 && info.getX() == info.getScene().getShopPosition() && info.getY() == 0 && !updated && !cutUpdate) {
             airupdate = true;
             return new ShoppingAction(ShoppingItem.BALLOON_SET);
         }
-        if (info.getFortune() >= 2 && info.getX() == info.getScene().getShopPosition() && info.getY() == 0 && !updated) {
-            updated = true;
+        if (info.getFortune() >= 2 && info.getX() == info.getScene().getShopPosition() && info.getY() == 0 && !updated && !cutUpdate) {
+            cutUpdate = true;
             return new ShoppingAction(ShoppingItem.CORNER_CUTTER);
+        }
+        if (info.getFortune() >= 2 && isBetween(info.getX(), info.getScene().getShopPosition()-1, info.getScene().getShopPosition()+1) && info.getY() == 0 && !updated && cutUpdate) {
+            updated = true;
+            return new ShoppingAction(ShoppingItem.STREAMLINED_WIG);
         }
 
 
@@ -92,7 +96,13 @@ public class Crigne_V1_2 extends AI {
         Point2D notfall = createEmergencyPoint(pearlNodes, pearl);
         Point2D notfall2 = createEmergencyPoint(fortuneNodes, fortunes);
 
-        if(fortune >= 4 && !updated){
+        if(fortune >= 4 && !cutUpdate){
+            swimStraightUp();
+            if(info.getAir() == info.getMaxAir()){ //an der oberfläche schwimmen
+                richtung = info.getScene().getShopPosition() < info.getX() ? (float) Math.PI : 0;
+                return new DivingAction(speed, richtung);
+            }
+        } else if(fortune >= 2 && !updated && cutUpdate){
             swimStraightUp();
             if(info.getAir() == info.getMaxAir()){ //an der oberfläche schwimmen
                 richtung = info.getScene().getShopPosition() < info.getX() ? (float) Math.PI : 0;

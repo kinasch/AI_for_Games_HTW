@@ -61,7 +61,7 @@ public class Crigne_V1_1 extends AI {
             cutUpdate = true;
             return new ShoppingAction(ShoppingItem.CORNER_CUTTER);
         }
-        if (info.getFortune() >= 2 && info.getX() == info.getScene().getShopPosition() && info.getY() == 0 && !updated && cutUpdate) {
+        if (info.getFortune() >= 2 && isBetween(info.getX(), info.getScene().getShopPosition()-1, info.getScene().getShopPosition()+1) && info.getY() == 0 && !updated && cutUpdate) {
             updated = true;
             return new ShoppingAction(ShoppingItem.STREAMLINED_WIG);
         }
@@ -261,7 +261,7 @@ public class Crigne_V1_1 extends AI {
         }
 
         if(!updated){
-            if (info.getAir() < info.getMaxAir()/2 + 50 && info.getAir() < -(info.getY() -40)) {
+            if (info.getAir() < info.getMaxAir()/2 + 25 && info.getAir() < -(info.getY() -20)) {
                 airbool = false;
                 if (boolbool) {
                     dijsktrastuffRepeat(); //zum nach oben schwimmen
@@ -269,7 +269,7 @@ public class Crigne_V1_1 extends AI {
                 boolbool = false;
             }
         }else if(updated && airupdate){
-            if (info.getAir() < info.getMaxAir()/4 + 50 && info.getAir() < -(info.getY() -40)) {
+            if (info.getAir() < info.getMaxAir()/4 + 25 && info.getAir() < -(info.getY() -20)) {
                 airbool = false;
                 if (boolbool) {
                     dijsktrastuffRepeat(); //zum nach oben schwimmen
