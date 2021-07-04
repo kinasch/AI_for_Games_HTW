@@ -29,11 +29,13 @@ public class Crigne_V1_1 extends AI {
     ArrayList<NodeV1> tempTarget;
     ArrayList<NodeV1> fortuneNodes = new ArrayList<>();
 
+    int r,g,b;
+
 
     public Crigne_V1_1(Info info) {
         super(info);
         testing();
-        //enlistForTournament(573132, 573689);
+        enlistForTournament(573132, 573689);
         dijsktrastuffStart();
         assignfortuneToNodes();
         dijsktrastuffRepeat();
@@ -42,12 +44,19 @@ public class Crigne_V1_1 extends AI {
 
     @Override
     public String getName() {
-        return "(aircut)+spd";
+        return "Einfach Crigne";
     }
 
     @Override
     public Color getColor() {
-        return Color.black;
+        if(r<255) r++;
+        else r=0;
+        if(g<250) g+=4;
+        else g=0;
+        if(b<245) b+=8;
+        else b=0;
+
+        return new Color(r,g,b);
     }
 
     @Override
